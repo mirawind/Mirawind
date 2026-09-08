@@ -1,122 +1,42 @@
-<div align = "center">
+## Hi there 👋
 
-# Twilight
+Hello! My name is Mirawind.
 
-A CMS integrated static blog template built with Astro framework.
+I am a undergraduate Data Science student at USTC, recently interested in AI.
 
-[**🖥️ Live Demo**](https://twilight.spr-aachen.com)
-[**📝 Documentation**](https://docs.twilight.spr-aachen.com/en)
+<!--
+**mirawind/Mirawind** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
-[![Bilibili](https://img.shields.io/badge/Bilibili-Intro-blue?logo=Bilibili)](https://space.bilibili.com/359461611/lists/6641229)&nbsp;
-[![YouTube](https://img.shields.io/badge/YouTube-Intro-red?logo=YouTube)](https://youtube.com/playlist?list=PLzjq8Hx1SRV7yqZQiACcCJmKPeg5D8JKe&si=Bcz2o0PF8MFvx8ec)
+Here are some ideas to get you started:
 
-<table style="width: 100%; table-layout: fixed;">
-   <tr>
-      <td colspan="5"><img alt="Desktop" src="docs/image/Desktop.jpg" style="max-width: 100%;"></td>
-   </tr>
-   <tr>
-      <td><img alt="Mobile_4" src="docs/image/Mobile_4.jpg" style="max-width: 100%;"></td>
-      <td><img alt="Mobile_2" src="docs/image/Mobile_2.jpg" style="max-width: 100%;"></td>
-      <td><img alt="Mobile_1" src="docs/image/Mobile_1.jpg" style="max-width: 100%;"></td>
-      <td><img alt="Mobile_3" src="docs/image/Mobile_3.jpg" style="max-width: 100%;"></td>
-      <td><img alt="Mobile_5" src="docs/image/Mobile_5.jpg" style="max-width: 100%;"></td>
-   </tr>
-</table>
+- 🔭 I’m currently working on ...
+- 🌱 I’m currently learning ...
+- 👯 I’m looking to collaborate on ...
+- 🤔 I’m looking for help with ...
+- 💬 Ask me about ...
+- 📫 How to reach me: ...
+- 😄 Pronouns: ...
+- ⚡ Fun fact: ...
+-->
 
-</div>
+🔭 **Contact me**
 
----
+- 📫 E-mail: hydronmezo@gmail.com
+- 🍨 QQ: 424939027
 
-<div align = "center">
+🍓 **Skills**
 
-English | [**中文**](docs/README_ZH.md)
-
-</div>
-
-
-## ✨ Features
-
-### Content
-- **CMS Functionality**: Easy content management with Decap CMS integration
-- **Data Visualization**: Visualized personal data like projects, skills etc.
-- **Automatic Navigation**: Automatic generation of post navigation
-
-### Components
-- **Analytics Support**: Umami analytics integration for visitor insights
-- **Comment System**: Twikoo-powered comment functionality
-- **Music Player**: Background music support with playlist management
-- **PIO Widget**: Interactive live2d character support
-
-### VFX
-- **Smooth Transition Animations**: Polished page component transition animations
-- **Customizable Theme Colors**: Realtime customizable color schemes
-- **Dynamic Wallpaper System**: Carousel support with multiple display modes
-- **Immersive Particle Effects**: Highly customizable animated particles
-
-### Compability
-- **Modern & Responsive Design**: Fully optimized for desktop and mobile devices
-- **Multilingual Capability**: Built-in translation functionality for global accessibility
+![](https://img.shields.io/badge/-Python-3e74a2?style=flat-square&logo=Python&logoColor=fff)
+![](https://img.shields.io/badge/-Node.js-339933?style=flat-square&logo=Node.js&logoColor=fff)
+![](https://img.shields.io/badge/-React-61DAFB?style=flat-square&logo=React&logoColor=fff)
+![](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=Docker&logoColor=fff)
+![](https://img.shields.io/badge/-Linux-000000?style=flat-square&logo=Linux&logoColor=fff)
 
 
-## 📦 Installation
+🎄 **Statistics**
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Spr-Aachen/Twilight.git
-   cd Twilight
-   ```
+[![50829's GitHub stats](https://github-readme-stats-weld-phi-22.vercel.app/api?username=mirawind&show_icons=true)](https://github.com/anuraghazra/github-readme-stats)  
 
-2. **Install dependencies:**
-   ```bash
-   # Install pnpm if not already installed
-   npm install -g pnpm
-   
-   # Install project dependencies
-   pnpm install
-   ```
+<img src="https://github-readme-stats-weld-phi-22.vercel.app/api/top-langs/?username=mirawind&layout=compact" />
 
-3. **Configure your blog:**
-   - [Customize blog settings](https://docs.twilight.spr-aachen.com/en/config/core) inside `twilight.config.yaml`
-   - [Support CMS functionality](https://docs.twilight.spr-aachen.com/en/config/cms) inside `.env`
-   - [Support Umami analytics](https://docs.twilight.spr-aachen.com/en/config/analytics) inside `.env`
-   - [Manage site content](https://docs.twilight.spr-aachen.com/en/config/content) inside `src/content`
-
-4. **Start the development server:**
-   ```bash
-   pnpm dev
-   ```
-
-
-## 🚀 Deployment
-
-Deploy your blog to any static hosting platform
-
-
-## ⚡ Commands
-
-| Command                     | Action                      |
-|:----------------------------|:----------------------------|
-| `pnpm lint`                 | Check and fix code issues   |
-| `pnpm format`               | Format code with Biome      |
-| `pnpm check`                | Run Astro error checking    |
-| `pnpm dev`                  | Start local dev server      |
-| `pnpm build`                | Build site to `./dist/`     |
-| `pnpm preview`              | Preview build locally       |
-| `pnpm astro ...`            | Run Astro CLI commands      |
-| `pnpm new-post <filename>`  | Create a new blog post      |
-
-
-## 🙏 Acknowledgements
-
-- Prototype   - [Fuwari](https://github.com/saicaca/fuwari)
-- Inspiration - [Yukina](https://github.com/WhitePaper233/yukina) & [Mizuki](https://github.com/matsuzaka-yuki/Mizuki)
-- CMS         - [astro-decap-cms-oauth](https://github.com/dorukgezici/astro-decap-cms-oauth)
-- Translation - [translate](https://gitee.com/mail_osc/translate)
-
-
-## 🤝 Support
-
-This project is supported by Alibaba Cloud ESA for accelerated delivery, compute, and protection.
-<a href="https://esa.console.aliyun.com/">
-   <img src="https://img.alicdn.com/imgextra/i3/O1CN01H1UU3i1Cti9lYtFrs_!!6000000000139-2-tps-7534-844.png" alt="Alibaba Cloud ESA Support" style="max-width: 100%; height: auto;">
-</a>
+<img src="https://osu-sig.s23.moe/card?user=35310081&mode=mania&blur=6&animation=true&mini=true" />
