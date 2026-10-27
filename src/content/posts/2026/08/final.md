@@ -1,5 +1,5 @@
 ---
-title: 2026 年 8 月总结
+title: 2026年8月总结
 published: 2026-09-16
 updated: 2026-10-27
 cover: ./116220536_p0.png
