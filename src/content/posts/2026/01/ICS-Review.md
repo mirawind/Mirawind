@@ -3,8 +3,8 @@ title: 计算系统概论期末回顾
 published: 2026-01-28
 pinned: false
 tags:
-  - 大二上
-category: 课程学习
+  - 计算机
+category: 笔记
 draft: false
 ---
 考试时间：2026 年 1 月 17 日 8：30-10：30，最后延长了 10 分钟

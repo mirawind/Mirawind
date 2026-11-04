@@ -7,7 +7,7 @@ encrypted: false
 pinned: false
 tags:
   - 月度回顾
-category: 回顾
+category: 随笔
 draft: false
 ---
  当一切又重归于白......

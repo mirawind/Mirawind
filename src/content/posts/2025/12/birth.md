@@ -4,7 +4,7 @@ published: 2025-12-24
 cover: ./birth-cover.jpg
 pinned: false
 tags: ["博客"]
-category: 生活碎片
+category: 随笔
 draft: false
 ---
 

@@ -7,7 +7,7 @@ pinned: false
 cover: ./0214.png
 tags: 
  - 电影
-category: 生活碎片
+category: 随笔
 draft: false
 ---
 ## 准备观看

@@ -5,7 +5,7 @@ cover: ./final-cover.png
 pinned: false
 tags:
   - 年度回顾
-category: 回顾
+category: 随笔
 draft: false
 ---
 

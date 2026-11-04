@@ -5,8 +5,8 @@ updated: 2026-01-29
 encrypted: false
 pinned: false
 tags:
-  - 大二上
-category: 课程学习
+  - 算法
+category: 笔记
 draft: false
 ---
 考试时间：2026 年 1 月 19 日 19：00-21：00，最后一门期末考试
