@@ -1,14 +1,14 @@
 {
-	"cuteleaf/firefly": {
-		"description": "🍀Firefly, fresh and aesthetic Astro blog theme template. ",
+	"50829/mirawind": {
+		"description": null,
 		"language": "Astro",
-		"avatarUrl": "https://avatars.githubusercontent.com/u/43440669?v=4",
+		"avatarUrl": "https://avatars.githubusercontent.com/u/53815918?v=4",
 		"license": "MIT"
 	},
-	"saicaca/fuwari": {
-		"description": "✨A static blog template built with Astro. ",
-		"language": "Astro",
-		"avatarUrl": "https://avatars.githubusercontent.com/u/25200299?v=4",
+	"spr-aachen/twilight": {
+		"description": "A CMS integrated static blog template | 支持后台管理的静态博客模板",
+		"language": "JavaScript",
+		"avatarUrl": "https://avatars.githubusercontent.com/u/51275522?v=4",
 		"license": "MIT"
 	}
 }

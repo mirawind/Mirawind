@@ -681,3 +681,13 @@ html {
 .pagination-info {
   @apply text-sm text-(--text-secondary) text-center mb-2;
 }
+
+/* ── Mirawind：字体分工（沿用 Twilight 时期的设置） ──
+ * 全站界面、标题、引用：仓耳青禾体（fontConfig.selected）
+ * 文章正文：系统字体，长文阅读更清晰 */
+.custom-md {
+	font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+.custom-md :is(h1, h2, h3, h4, h5, h6, blockquote) {
+	font-family: var(--font-canger-qinghe), "PingFang SC", "Microsoft YaHei", sans-serif;
+}
