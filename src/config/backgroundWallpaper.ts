@@ -172,7 +172,8 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 		// 全屏壁纸模式的导航栏配置
 		navbar: {
 			// 导航栏透明模式："semi" 半透明，"semifull" 动态透明（仅首页顶部透明、下滑玻璃化；非首页均跟卡片半透明）
-			transparentMode: "semifull",
+			// Mirawind：semifull 在首页顶部完全透明，深色文字压在深色星空上看不清，改用 semi
+			transparentMode: "semi",
 			// 导航栏毛玻璃模糊度，0 即关闭（玻璃态生效）
 			blur: 12,
 		},
