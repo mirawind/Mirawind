@@ -83,8 +83,20 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		],
 	});
 
-	// 关于
-	links.push(LinkPresets.About);
+	// 关于及其子菜单
+	// 打赏页关闭时只剩一项，会直接显示为「关于我」链接
+	links.push({
+		name: "关于",
+		url: "#",
+		icon: "material-symbols:info",
+		children: [
+			// 关于页面
+			LinkPresets.About,
+
+			// 打赏
+			LinkPresets.Sponsor,
+		],
+	});
 
 	// 自定义导航栏链接
 	// links.push({
@@ -221,9 +233,9 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		pageKey: "sponsor",
 	},
 	About: {
-		name: "关于",
+		name: "关于我",
 		url: "/about/",
-		icon: "material-symbols:info",
+		icon: "material-symbols:person-book",
 	},
 };
 
