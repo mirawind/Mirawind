@@ -12,6 +12,48 @@ export const subscriptionConfig: FeedSubscription[] = [
 		tags: ["周刊", "技术"],
 		enabled: true,
 	},
+	{
+		title: "Bojie Li",
+		siteurl: "https://01.me/",
+		feedUrl: "https://01.me/atom.xml",
+		imgurl: "https://01.me/favicon.ico",
+		enabled: true,
+	},
+	{
+		title: "时歌的博客",
+		siteurl: "https://www.lapis.cafe/",
+		feedUrl: "https://www.lapis.cafe/rss.xml",
+		imgurl: "https://www.lapis.cafe/apple-icon.png",
+		enabled: true,
+	},
+	{
+		title: "Axi's Blog",
+		siteurl: "https://axi404.top/",
+		feedUrl: "https://axi404.top/rss.xml",
+		imgurl: "https://axi404.top/favicon/favicon.ico",
+		enabled: true,
+	},
+	{
+		title: "MingBlog",
+		siteurl: "https://mingblog.site/",
+		feedUrl: "https://mingblog.site/rss.xml",
+		imgurl: "https://mingblog.site/apple-touch-icon.png",
+		enabled: true,
+	},
+	{
+		title: "Finneas's",
+		siteurl: "https://blog.econfinny.com/",
+		feedUrl: "https://blog.econfinny.com/atom.xml",
+		imgurl: "https://blog.econfinny.com/img/favicon.png",
+		enabled: true,
+	},
+	{
+		title: "Zowely",
+		siteurl: "https://www.lansganbs.cn/",
+		feedUrl: "https://www.lansganbs.cn/rss.xml",
+		imgurl: "https://www.lansganbs.cn/favicon/favicon-light-32.png",
+		enabled: true,
+	},
 ];
 
 // 获取所有启用的订阅源
