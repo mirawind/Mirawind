@@ -3,3 +3,5 @@ packages:
 allowBuilds:
   esbuild: true
   workerd: true
+patchedDependencies:
+  astro-icon@1.2.0: patches/astro-icon@1.2.0.patch
