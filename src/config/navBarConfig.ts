@@ -30,36 +30,83 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 
 			// 标签
 			LinkPresets.Tags,
+
+			// 系列
+			LinkPresets.Series,
 		],
 	});
 
-	// 友链
-	links.push(LinkPresets.Friends);
+	// 我的及其子菜单
+	links.push({
+		name: "我的",
+		url: "#",
+		icon: "material-symbols:person",
+		children: [
+			// 动态
+			LinkPresets.Dynamic,
+
+			// 项目
+			LinkPresets.Projects,
+
+			// 相册
+			LinkPresets.Gallery,
+
+			// 书签导航
+			LinkPresets.Booknav,
+
+			// 哔哩哔哩追番
+			LinkPresets.Bilibili,
+
+			// 番组计划
+			LinkPresets.Bangumi,
+
+			// VNDB
+			LinkPresets.VNDB,
+
+			// MyAnimeList
+			LinkPresets.MAL,
+		],
+	});
+
+	// 社交及其子菜单
+	// 子项按 siteConfig.pages 开关自动过滤；只剩一项时直接显示为普通链接
+	links.push({
+		name: "社交",
+		url: "#",
+		icon: "material-symbols:group",
+		children: [
+			// 友链
+			LinkPresets.Friends,
+
+			// 留言
+			LinkPresets.Guestbook,
+		],
+	});
 
 	// 关于
 	links.push(LinkPresets.About);
 
 	// 自定义导航栏链接
-	links.push({
-		name: "链接",
-		url: "#",
-		icon: "material-symbols:link",
-		// 子菜单
-		children: [
-			{
-				name: "GitHub",
-				url: "https://github.com/50829",
-				external: true,
-				icon: "fa7-brands:github",
-			},
-			{
-				name: "Bilibili",
-				url: "https://space.bilibili.com/397174240",
-				external: true,
-				icon: "fa7-brands:bilibili",
-			},
-		],
-	});
+	// links.push({
+	// 	name: "链接",
+	// 	url: "#",
+	// 	icon: "material-symbols:link",
+	// 	// 子菜单
+	// 	children: [
+	// 		{
+	// 			name: "GitHub",
+	// 			url: "https://github.com/50829",
+	// 			external: true,
+	// 			icon: "fa7-brands:github",
+	// 		},
+	// 		{
+	// 			name: "Bilibili",
+	// 			url: "https://space.bilibili.com/397174240",
+	// 			external: true,
+	// 			icon: "fa7-brands:bilibili",
+	// 		},
+	// 	],
+	// });
 
 	// 文档链接
 	// links.push({
@@ -174,9 +221,9 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		pageKey: "sponsor",
 	},
 	About: {
-		name: "关于我",
+		name: "关于",
 		url: "/about/",
-		icon: "material-symbols:person",
+		icon: "material-symbols:info",
 	},
 };
 
