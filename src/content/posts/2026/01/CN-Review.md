@@ -1,6 +1,7 @@
 ---
 title: 计算机网络期末回顾
 published: 2026-01-28
+image: "api"
 pinned: false
 tags:
   - 计算机
