@@ -1,0 +1,58 @@
+---
+import { Icon } from "astro-icon/components";
+import I18nKey from "@/i18n/i18nKey";
+import { i18n } from "@/i18n/translation";
+
+interface Props {
+	title: string;
+	description?: string;
+	/** 是否显示时间线 / 平铺视图切换（加载占位中不显示） */
+	showSwitcher?: boolean;
+}
+
+const { title, description, showSwitcher = false } = Astro.props;
+---
+
+<!-- 页面标题、描述与视图切换开关 -->
+<div class="flex items-center justify-between gap-3 mb-2 pb-4 border-b border-(--line-divider)">
+  <div class="page-heading flex-nowrap mb-0 min-w-0 flex-1">
+    <div class="page-icon shrink-0" aria-hidden="true">
+      <Icon is:inline name="mingcute:moment-line" />
+    </div>
+    <div class="min-w-0">
+      <h2 class="truncate text-lg sm:text-2xl font-bold">{title}</h2>
+      {description && <p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-0.5 truncate">{description}</p>}
+    </div>
+  </div>
+
+  <!-- 视图切换 Segmented Switcher -->
+  {showSwitcher && (
+    <div
+      id="fcircle-view-switcher"
+      class="flex gap-1 p-1 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 shrink-0 select-none"
+      role="tablist"
+      aria-label="视图切换"
+    >
+      <button
+        id="view-timeline"
+        type="button"
+        class="fcircle-view-btn px-2.5 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm rounded-lg bg-(--primary) text-white font-medium transition-colors cursor-pointer"
+        data-view="timeline"
+        role="tab"
+        aria-selected="true"
+      >
+        {i18n(I18nKey.fcircleTimeline)}
+      </button>
+      <button
+        id="view-grid"
+        type="button"
+        class="fcircle-view-btn px-2.5 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm rounded-lg opacity-60 hover:opacity-100 transition-colors cursor-pointer"
+        data-view="grid"
+        role="tab"
+        aria-selected="false"
+      >
+        {i18n(I18nKey.fcircleGrid)}
+      </button>
+    </div>
+  )}
+</div>

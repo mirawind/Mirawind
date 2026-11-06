@@ -99,7 +99,7 @@ export const en: Translation = {
 	[Key.fcircleSiteUnit]: "sites",
 	[Key.fcirclePostsUpdated]: "updates",
 	[Key.fcircleBuildHint]:
-		"Content is fetched automatically during site build and is not updated in real time",
+		"Content is fetched on demand and cached, refreshing about every 4 hours rather than in real time",
 	[Key.fcircleAuthor]: "Author",
 	[Key.fcircleSubscription]: "Feed",
 	[Key.booknav]: "Bookmark Nav",

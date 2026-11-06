@@ -1,0 +1,217 @@
+---
+// 朋友圈动态列表：以 server island（server:defer）按需渲染，页面外壳仍是静态的。
+// 抓取在访客请求时才发生，结果交给 CDN 缓存：缓存期内直接命中；过期后先返回旧内容，
+// 同时在后台重新抓取（stale-while-revalidate），下一位访客即看到新内容。
+import { Icon } from "astro-icon/components";
+import FcircleHeader from "@/components/pages/fcircle/FcircleHeader.astro";
+import FcircleStatsBar from "@/components/pages/fcircle/FcircleStatsBar.astro";
+import FcircleTimelineItem from "@/components/pages/fcircle/FcircleTimelineItem.astro";
+import { siteConfig } from "@/config";
+import I18nKey from "@/i18n/i18nKey";
+import { i18n } from "@/i18n/translation";
+import {
+	formatFcircleDate,
+	getFcircleItems,
+	getFcircleStats,
+	groupFcircleByDate,
+	isValidHttpUrl,
+} from "@/utils/fcircle-utils";
+
+interface Props {
+	/** 博主头像地址，由静态页面在构建时生成后传入 */
+	selfAvatar?: string;
+}
+
+const { selfAvatar } = Astro.props;
+
+// CDN 缓存 4 小时；过期后 7 天内先返回旧内容并后台刷新。浏览器本身不缓存（max-age=0）
+const CDN_MAX_AGE_SECONDS = 4 * 60 * 60;
+const STALE_WHILE_REVALIDATE_SECONDS = 7 * 24 * 60 * 60;
+Astro.response.headers.set(
+	"Cache-Control",
+	`public, max-age=0, s-maxage=${CDN_MAX_AGE_SECONDS}, stale-while-revalidate=${STALE_WHILE_REVALIDATE_SECONDS}`,
+);
+
+// 获取友链与订阅文章
+const items = await getFcircleItems(selfAvatar);
+
+// 遵循站点配置时区与语言
+const fcircleTimeZone = siteConfig.timezone || "UTC";
+const lang = siteConfig.lang || "zh_CN";
+const now = new Date();
+const dateGroups = groupFcircleByDate(items, now, fcircleTimeZone, lang);
+const stats = getFcircleStats(items, now, fcircleTimeZone);
+
+const title = i18n(I18nKey.fcircle);
+const description = i18n(I18nKey.fcircleDescription);
+---
+
+<div class="card-base z-10 px-5 sm:px-9 py-6 relative w-full">
+  <FcircleHeader title={title} description={description} showSwitcher={items.length > 0} />
+
+  <!-- 顶部数据概览栏 -->
+  {items.length > 0 && <FcircleStatsBar stats={stats} />}
+
+  <!-- 空状态提示 -->
+  {items.length === 0 && (
+    <div class="flex flex-col items-center justify-center py-16 text-neutral-400 dark:text-neutral-500">
+      <Icon is:inline name="mingcute:moment-line" class="text-5xl mb-3 opacity-50" />
+      <div class="text-sm">{i18n(I18nKey.fcircleEmpty)}</div>
+    </div>
+  )}
+
+  <!-- 视图 1：按天聚合的时间线视图（默认视图） -->
+  {items.length > 0 && (
+    <div id="timeline-view" class="mt-8 transition-opacity duration-300">
+      <div class="relative flex flex-col">
+        <!-- 纵向贯穿细轨道 -->
+        <div class="fcircle-track" aria-hidden="true" />
+
+        <!-- 日期分组列表 -->
+        {dateGroups.map((group) => {
+          const isToday = group.relativeDays === 0;
+          const isYesterday = group.relativeDays === 1;
+
+          return (
+            <div
+              class="fcircle-date-group relative mb-8 last:mb-2"
+              data-date-iso={group.items[0]?.pubDate.toISOString()}
+            >
+              <!-- 日期节点 Header -->
+              <div class="flex items-center gap-3 sm:gap-4 mb-4 select-none">
+                <!-- 节点圆环 Marker -->
+                <div
+                  class:list={[
+                    "fcircle-date-marker relative z-10 w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border-2 shrink-0",
+                    isToday
+                      ? "border-(--primary) bg-(--primary) text-white shadow-md shadow-(--primary)/20 ring-4 ring-(--primary)/15"
+                      : isYesterday
+                        ? "border-(--primary) bg-(--card-bg) text-(--primary) shadow-sm ring-2 ring-(--primary)/10"
+                        : "border-(--line-divider) bg-(--card-bg) text-neutral-500 dark:text-neutral-400 hover:border-(--primary)",
+                  ]}
+                  aria-hidden="true"
+                >
+                  <span class:list={["fcircle-date-today-icon", !isToday && "hidden"]}>
+                    <Icon name="mingcute:flash-line" class="text-sm sm:text-base" />
+                  </span>
+                  <span class:list={["fcircle-date-calendar-icon", isToday && "hidden"]}>
+                    <Icon name="mingcute:calendar-line" class="text-sm sm:text-base" />
+                  </span>
+                </div>
+
+                <!-- 日期文本 -->
+                <div class="flex items-center gap-2.5 flex-wrap">
+                  <span class="fcircle-date-label text-base sm:text-lg font-bold tracking-tight text-neutral-800 dark:text-neutral-100">
+                    {group.displayDate}
+                  </span>
+
+                  {group.subLabel && (
+                    <span class="fcircle-date-sublabel text-xs text-neutral-400 font-medium">
+                      {group.subLabel}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <!-- 当天文章卡片容器（右移缩进挂靠在轨道内） -->
+              <div class="pl-8 sm:pl-12 flex flex-col gap-3">
+                {group.items.map((item) => (
+                  <FcircleTimelineItem item={item} timeZone={fcircleTimeZone} />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  )}
+
+  <!-- 视图 2：经典平铺网格视图（可选切换） -->
+  {items.length > 0 && (
+    <div
+      id="grid-view"
+      class="fcircle-grid mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 hidden transition-opacity duration-300"
+    >
+      {items.map((item) => {
+        const dateStr = formatFcircleDate(item.pubDate, fcircleTimeZone, lang);
+        const safeLink =
+          isValidHttpUrl(item.link) ||
+          (item.sourceType === "self" && item.link.startsWith("/"))
+            ? item.link
+            : "#";
+
+        return (
+          <a
+            href={safeLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group flex flex-col justify-start p-4 sm:p-5 rounded-2xl border border-(--line-divider) bg-(--card-bg) hover:border-(--primary) transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 relative overflow-hidden"
+          >
+            <div class="absolute inset-0 bg-(--primary) opacity-0 group-hover:opacity-[0.03] transition-opacity duration-300 pointer-events-none" />
+
+            <!-- 顶部：博主信息与发表日期 -->
+            <div class="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 font-medium mb-2.5 min-w-0">
+              <div class="w-6 h-6 rounded-full overflow-hidden shrink-0 border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-800">
+                <img
+                  src={item.friendAvatar}
+                  alt={item.friendName}
+                  width="24"
+                  height="24"
+                  loading="lazy"
+                  decoding="async"
+                  class="w-full h-full object-cover"
+                />
+              </div>
+
+              <span class="truncate text-neutral-700 dark:text-neutral-300 group-hover:text-(--primary) transition-colors font-medium">
+                {item.friendName}
+              </span>
+
+              {item.sourceType === "subscription" && (
+                <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-(--primary)/10 text-(--primary) font-normal border border-(--primary)/20 shrink-0">
+                  {item.tags?.[0] || i18n(I18nKey.fcircleSubscription)}
+                </span>
+              )}
+
+              {item.sourceType === "self" && (
+                <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-(--primary)/15 text-(--primary) font-medium border border-(--primary)/30 shrink-0">
+                  {i18n(I18nKey.fcircleAuthor)}
+                </span>
+              )}
+
+              <span class="text-neutral-300 dark:text-neutral-600 shrink-0">·</span>
+              <span class="text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">
+                {dateStr}
+              </span>
+            </div>
+
+            <!-- 中间：文章标题 -->
+            <div class="font-bold text-base text-neutral-900 dark:text-neutral-100 group-hover:text-(--primary) transition-colors line-clamp-2 leading-snug mb-2">
+              {item.title}
+            </div>
+
+            <!-- 底部：文章摘要 -->
+            {item.excerpt && (
+              <div class="text-xs text-neutral-500 dark:text-neutral-400 line-clamp-3 leading-relaxed mt-auto">
+                {item.excerpt}
+              </div>
+            )}
+          </a>
+        );
+      })}
+    </div>
+  )}
+
+  <!-- 底部抓取说明 -->
+  {items.length > 0 && (
+    <div class="mt-8 pt-4 border-t border-(--line-divider) flex items-center justify-center gap-1.5 text-xs text-neutral-400 dark:text-neutral-500 select-none">
+      <Icon is:inline name="material-symbols:info-outline-rounded" class="text-sm shrink-0" />
+      <span>{i18n(I18nKey.fcircleBuildHint)}</span>
+    </div>
+  )}
+</div>
+
+<!-- island 内容插入后通知 fcircle-manager 恢复视图偏好、刷新相对日期 -->
+<script is:inline>
+  document.dispatchEvent(new CustomEvent("fcircle:loaded"));
+</script>

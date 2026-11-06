@@ -99,7 +99,7 @@ export const ko: Translation = {
 	[Key.fcircleSiteUnit]: "명",
 	[Key.fcirclePostsUpdated]: "개 업데이트",
 	[Key.fcircleBuildHint]:
-		"콘텐츠는 사이트 빌드 시 자동으로 수집되며 실시간으로 동기화되지 않습니다",
+		"콘텐츠는 필요할 때 수집되어 캐시되며 약 4시간마다 갱신됩니다(실시간 아님)",
 	[Key.fcircleAuthor]: "작성자",
 	[Key.fcircleSubscription]: "구독",
 	[Key.booknav]: "북마크 모음",

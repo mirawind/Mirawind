@@ -97,7 +97,8 @@ export const zh_TW: Translation = {
 	[Key.fcirclePostUnit]: "篇",
 	[Key.fcircleSiteUnit]: "位",
 	[Key.fcirclePostsUpdated]: "篇更新",
-	[Key.fcircleBuildHint]: "動態內容於站點構建時自動抓取，並非即時同步",
+	[Key.fcircleBuildHint]:
+		"動態內容按需抓取並快取，約每 4 小時自動更新，並非即時同步",
 	[Key.fcircleAuthor]: "博主",
 	[Key.fcircleSubscription]: "訂閱",
 	[Key.booknav]: "書籤導航",

@@ -218,6 +218,8 @@ export function initFcircleManager(): void {
 	document.addEventListener("astro:page-load", applySavedFcircleView);
 	document.addEventListener("swup:content:replace", applySavedFcircleView);
 	document.addEventListener("swup:contentReplaced", applySavedFcircleView);
+	// 动态列表是 server island，晚于页面加载插入（见 FcircleFeed.astro）
+	document.addEventListener("fcircle:loaded", applySavedFcircleView);
 
 	// 页面可见性变化时刷新
 	document.addEventListener("visibilitychange", () => {

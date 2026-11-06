@@ -396,7 +396,7 @@ async function mapConcurrent<T, R>(
  * 不能用 schema-image 的 getAuthorAvatarUrl()：它为 schema.org 拼接 site_url 绝对地址，
  * 本地预览、预览部署或新站点尚未上线时会指向线上不存在的资源而裂图。
  */
-async function getSelfAvatarSrc(): Promise<string> {
+export async function getSelfAvatarSrc(): Promise<string> {
 	const fallback = formatUrl("/favicon/favicon.ico");
 	const avatar = profileConfig.avatar?.trim();
 	if (!avatar) return fallback;
@@ -411,7 +411,35 @@ async function getSelfAvatarSrc(): Promise<string> {
 	return optimized.src;
 }
 
-export async function getFcircleItems(): Promise<FcircleItem[]> {
+// 进程内短缓存：dev 下避免每次刷新都重抓全部 Feed；线上主要靠 CDN 缓存（见 FcircleFeed.astro）
+const ITEMS_CACHE_TTL_MS = 10 * 60 * 1000;
+const itemsCache = new Map<
+	string,
+	{ at: number; items: Promise<FcircleItem[]> }
+>();
+
+/**
+ * 获取朋友圈条目（带 10 分钟进程内缓存）。
+ * @param selfAvatarSrc 博主头像地址。server island 中应由静态页面在构建时算好传入，
+ *   避免在按需渲染时调用 getImage 走运行时 /_image 转码。
+ */
+export function getFcircleItems(
+	selfAvatarSrc?: string,
+): Promise<FcircleItem[]> {
+	const key = selfAvatarSrc ?? "";
+	const hit = itemsCache.get(key);
+	if (hit && Date.now() - hit.at < ITEMS_CACHE_TTL_MS) return hit.items;
+	const items = fetchFcircleItems(selfAvatarSrc).catch((error) => {
+		itemsCache.delete(key);
+		throw error;
+	});
+	itemsCache.set(key, { at: Date.now(), items });
+	return items;
+}
+
+async function fetchFcircleItems(
+	selfAvatarSrc?: string,
+): Promise<FcircleItem[]> {
 	const parser = new Parser({
 		headers: {
 			"User-Agent": BROWSER_UA,
@@ -427,7 +455,7 @@ export async function getFcircleItems(): Promise<FcircleItem[]> {
 
 	// 1. 本地博主文章（0 外部网络依赖，离线可用且构建即最新）
 	try {
-		const selfAvatar = await getSelfAvatarSrc();
+		const selfAvatar = selfAvatarSrc || (await getSelfAvatarSrc());
 
 		const localPosts = await getSortedPostsList();
 		for (const post of localPosts) {

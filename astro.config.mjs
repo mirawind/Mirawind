@@ -2,6 +2,7 @@ import { setMaxListeners } from "node:events";
 import cloudflare from "@astrojs/cloudflare";
 import { unified } from "@astrojs/markdown-remark";
 import mdx from "@astrojs/mdx";
+import vercel from "@astrojs/vercel";
 import sitemap from "@astrojs/sitemap";
 import svelte from "@astrojs/svelte";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
@@ -59,11 +60,16 @@ if (process.env.NODE_ENV === "development") {
 	setMaxListeners(20);
 }
 
+// 全站仍是静态页面；adapter 只用于按需渲染的 server island（朋友圈动态列表，见 src/pages/fcircle.astro）。
+// Vercel 构建产物输出到 .vercel/output，构建后脚本通过 scripts/site-root.ts 定位。
 const adapter = process.env.CF_WORKERS
 	? cloudflare({
 			prerenderEnvironment: "node",
 		})
-	: undefined;
+	: vercel({
+			// 朋友圈 island 冷启动时要现场抓取全部 Feed，最坏约 24s（17 源 / 并发 5 / 单源超时 6s）
+			maxDuration: 30,
+		});
 
 // https://astro.build/config
 export default defineConfig({

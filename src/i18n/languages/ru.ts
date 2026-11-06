@@ -99,7 +99,7 @@ export const ru: Translation = {
 	[Key.fcircleSiteUnit]: "сайтов",
 	[Key.fcirclePostsUpdated]: "обновлений",
 	[Key.fcircleBuildHint]:
-		"Контент собирается автоматически во время сборки сайта и не обновляется в реальном времени",
+		"Контент загружается по запросу и кешируется, обновляясь примерно раз в 4 часа, а не в реальном времени",
 	[Key.fcircleAuthor]: "Автор",
 	[Key.fcircleSubscription]: "Подписка",
 	[Key.booknav]: "Каталог закладок",

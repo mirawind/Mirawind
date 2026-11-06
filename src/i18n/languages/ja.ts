@@ -99,7 +99,7 @@ export const ja: Translation = {
 	[Key.fcircleSiteUnit]: "人",
 	[Key.fcirclePostsUpdated]: "件の更新",
 	[Key.fcircleBuildHint]:
-		"コンテンツはサイトビルド時に自動収集されるため、リアルタイム更新ではありません",
+		"コンテンツは必要に応じて取得・キャッシュされ、約 4 時間ごとに更新されます（リアルタイムではありません）",
 	[Key.fcircleAuthor]: "著者",
 	[Key.fcircleSubscription]: "購読",
 	[Key.booknav]: "ブックマーク集",

@@ -3,5 +3,8 @@ packages:
 allowBuilds:
   esbuild: true
   workerd: true
+minimumReleaseAgeExclude:
+  - '@astrojs/internal-helpers@0.13.1'
+  - '@astrojs/vercel@11.0.20'
 patchedDependencies:
   astro-icon@1.2.0: patches/astro-icon@1.2.0.patch
