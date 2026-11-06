@@ -10,7 +10,8 @@ export const commentConfig: CommentConfig = {
 		// 设置 Twikoo 评论系统语言
 		lang: "zh-CN",
 		// 是否启用文章访问量统计功能
-		visitorCount: true,
+		// Mirawind：暂时关闭，envId 还是示例地址，浏览量一直显示"加载中"
+		visitorCount: false,
 		// Twikoo JS 文件地址，支持 CDN 链接
 		// 中国推荐1: https://registry.npmmirror.com/twikoo/1.7.14/files/dist/twikoo.min.js
 		// 中国推荐2: https://s4.zstatic.net/npm/twikoo@1.7.14/dist/twikoo.min.js
