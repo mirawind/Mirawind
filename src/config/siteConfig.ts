@@ -26,7 +26,7 @@ const pages = resolvePageToggles({
 	// 相册页面开关
 	gallery: false,
 	// 书签导航页面开关
-	booknav: false,
+	booknav: true,
 	// 哔哩哔哩追番页面开关
 	bilibili: false,
 	// 番组计划页面开关

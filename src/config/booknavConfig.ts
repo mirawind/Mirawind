@@ -151,6 +151,13 @@ export const booknavConfig: BooknavGroup[] = [
 				desc: "飞萤之火自无梦的长夜亮起",
 				weight: 9,
 			},
+			{
+				title: "Wikipedia",
+				url: "https://www.wikipedia.org",
+				desc: "自由的百科全书",
+				icon: "fa7-brands:wikipedia-w",
+				weight: 8,
+			},
 		],
 	},
 ];
