@@ -41,7 +41,8 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 		desktop: "assets/images/mirawind/banner-137775938.jpg",
 		// 移动背景图片（支持单张或多张随机）
 		// mobile: "assets/images/MobileWallpaper/m1.avif",
-		mobile: "assets/images/mirawind/banner-137775938.jpg",
+		// 原图居中裁切的 1080×1440 竖版，避免竖屏 object-cover 裁切后被放大发糊
+		mobile: "assets/images/mirawind/banner-137775938-mobile.jpg",
 		// 背景视频播放地址
 		// 支持单个视频路径（字符串）或多个视频循环（数组，参考上面壁纸配置）
 		// 支持远程视频URL，本地视频请放在 public/assets/videos/ 目录下
