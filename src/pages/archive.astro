@@ -1,34 +1,10 @@
 ---
-import ArchivePanel from "@components/archivePanel.svelte";
-import BackwardButton from "@components/backwardButton.astro";
-import { LinkPresets } from "@constants/link-presets";
-import GridLayout from "@layouts/grid.astro";
-import { getSortedPostsList } from "@utils/content";
-import { LinkPreset } from "@/types/config";
-
-const pageTitle = LinkPresets[LinkPreset.Archive].name;
-const pageDescription = LinkPresets[LinkPreset.Archive].description;
-
-const sortedPostsList = await getSortedPostsList();
+import ArchivePanel from "@components/controls/ArchivePanel.astro";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
 ---
 
-<GridLayout title={pageTitle} description={pageDescription}>
-    <div class="flex w-full rounded-(--radius-large) overflow-hidden relative min-h-32">
-        <div class="card-base z-10 px-9 py-6 relative w-full ">
-            <BackwardButton currentPath={Astro.url.pathname} />
-            <!-- 标题 -->
-            <header class="mb-8">
-                <h1 class="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
-                    {pageTitle}
-                </h1>
-                {pageDescription && (
-                    <p class="text-neutral-600 dark:text-neutral-400">
-                        {pageDescription}
-                    </p>
-                )}
-            </header>
-            <!-- 归档面板 -->
-            <ArchivePanel sortedPosts={sortedPostsList} client:load></ArchivePanel>
-        </div>
-    </div>
-</GridLayout>
+<MainGridLayout title={i18n(I18nKey.archive)}>
+  <ArchivePanel />
+</MainGridLayout>

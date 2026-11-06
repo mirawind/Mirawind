@@ -1,0 +1,18 @@
+diff --git a/components/Icon.astro b/components/Icon.astro
+index 85596f5ee30eaa8277a2fb2915a92c26bd25e6a9..b35b4f84352d7b1a11a9aa0c4a25bf46cfccccd7 100644
+--- a/components/Icon.astro
++++ b/components/Icon.astro
+@@ -36,7 +36,12 @@ const {
+   name = "",
+   title,
+   desc,
+-  "is:inline": inline = false,
++  // Patched (Mirawind): default to inline SVG. The deduplicated <symbol>/<use>
++  // sprite breaks with Swup: if the first (symbol-owning) instance renders inside
++  // a swapped container, persistent copies (navbar etc.) lose their icon after
++  // navigation. See CuteLeaf/Firefly#290 (regressed by c17fea3e) and
++  // natemoo-re/astro-icon#273.
++  "is:inline": inline = true,
+   ...props
+ } = Astro.props;
+ 

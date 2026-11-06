@@ -2,8 +2,7 @@
 title: 2026年1月总结
 published: 2026-02-07
 updated: 2026-02-07
-cover: ./131657586.jpg
-encrypted: false
+image: ./131657586.jpg
 pinned: false
 tags:
   - 月度回顾

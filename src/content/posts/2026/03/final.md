@@ -2,7 +2,7 @@
 title: 2026年3月总结
 published: 2026-04-06
 updated: 2026-04-06
-cover: ./122763115_p0.jpg
+image: ./122763115_p0.jpg
 tags:
   - 月度回顾
 category: 随笔

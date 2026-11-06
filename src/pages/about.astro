@@ -1,15 +1,14 @@
 ---
-export const prerender = true;
 
 import { getEntry, render } from "astro:content";
-import BackwardButton from "@components/backwardButton.astro";
-import Markdown from "@components/common/markdown.astro";
-import { LinkPresets } from "@constants/link-presets";
-import GridLayout from "@layouts/grid.astro";
-import { LinkPreset } from "@/types/config";
-
-const pageTitle = LinkPresets[LinkPreset.About].name;
-const pageDescription = LinkPresets[LinkPreset.About].description;
+import Markdown from "@components/common/Markdown.astro";
+import { profileConfig } from "@/config/profileConfig";
+import { siteConfig } from "@/config/siteConfig";
+import I18nKey from "@/i18n/i18nKey";
+import { i18n } from "@/i18n/translation";
+import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import { getAuthorAvatarUrl } from "@/utils/schema-image";
+import { buildProfilePage } from "@/utils/schema-utils";
 
 const aboutPost = await getEntry("spec", "about");
 
@@ -18,15 +17,23 @@ if (!aboutPost) {
 }
 
 const { Content } = await render(aboutPost);
----
 
-<GridLayout title={pageTitle} description={pageDescription}>
+const avatarUrl = await getAuthorAvatarUrl();
+const jsonLd = buildProfilePage({
+	site: siteConfig.site_url,
+	profileConfig,
+	authorUrl: Astro.url.toString(),
+	avatarUrl,
+	description: profileConfig.bio,
+});
+---
+<MainGridLayout title={i18n(I18nKey.about)} description={i18n(I18nKey.about)}>
+    <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
     <div class="flex w-full rounded-(--radius-large) overflow-hidden relative min-h-32">
         <div class="card-base z-10 px-9 py-6 relative w-full ">
-            <BackwardButton currentPath={Astro.url.pathname} />
             <Markdown class="mt-2">
                 <Content />
             </Markdown>
         </div>
     </div>
-</GridLayout>
+</MainGridLayout>

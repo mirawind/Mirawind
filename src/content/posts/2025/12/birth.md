@@ -1,7 +1,7 @@
 ---
 title: 我的第一篇博客
 published: 2025-12-24
-cover: ./birth-cover.jpg
+image: ./birth-cover.jpg
 pinned: false
 tags: ["博客"]
 category: 随笔

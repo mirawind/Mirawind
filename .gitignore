@@ -1,17 +1,14 @@
-# editor config
-**/.vscode/
-**/.obsidian/
-src/content/posts/.obsidian/
+# build output
+dist/
 
-# dependencies
-node_modules/
+# generated vndb covers
+public/vndb-covers/
 
 # generated types
 .astro/
-.vercel/
 
-# build output
-dist/
+# dependencies
+node_modules/
 
 # logs
 npm-debug.log*
@@ -19,9 +16,34 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# private config
+# environment variables
 .env
+.env.production
 
-bun.lock
+# macOS-specific files
+.DS_Store
+
+.vercel
+
 package-lock.json
+bun.lockb
+yarn.lock
 
+# ide
+.idea
+*.iml
+
+# docs
+Firefly-docs/
+
+# lite 版本
+Firefly-Lite/
+
+cache/
+package/
+.obsidian/
+
+# vibe coding
+.codex*
+.claude
+.mimocode

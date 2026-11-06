@@ -1,0 +1,14 @@
+{
+	"50829/mirawind": {
+		"description": null,
+		"language": "Astro",
+		"avatarUrl": "https://avatars.githubusercontent.com/u/53815918?v=4",
+		"license": "MIT"
+	},
+	"spr-aachen/twilight": {
+		"description": "A CMS integrated static blog template | 支持后台管理的静态博客模板",
+		"language": "JavaScript",
+		"avatarUrl": "https://avatars.githubusercontent.com/u/51275522?v=4",
+		"license": "MIT"
+	}
+}

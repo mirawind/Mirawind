@@ -1,301 +1,327 @@
+/**
+ * 统一导航栏样式
+ * 
+ * 模式说明：
+ * ============================================
+ * 1. 壁纸模式 (backgroundWallpaper.mode):
+ *    - "banner": 横幅壁纸模式 (有 #wallpaper-wrapper)
+ *    - "overlay": 全屏壁纸模式 (body.wallpaper-transparent)
+ *    - "none": 纯色背景无壁纸
+ * 
+ * 2. 导航栏配置 (banner.navbar):
+ *    - transparentMode: "semi" | "semifull" | "none" (仅在 Banner 模式下生效)
+ *    - blur: 毛玻璃模糊度，0 即关闭 (仅在 Banner 模式下生效)
+ *
+ * 注意：Overlay 模式下的导航栏始终跟随卡片样式 (var(--card-bg-transparent) + blur)，
+ * 不受 Banner 配置 (transparentMode, blur) 的影响。
+ * ============================================
+ */
+
+@reference "tailwindcss";
+
 /*
- * 导航栏半透明效果样式
- * Navbar Translucent Effects Styles
- * 只有当页面启用banner时才应用半透明效果
-*/
-
-
-/* 导航区域基础布局样式（避免 flex 子项溢出） */
-.navbar-nav-links {
-    min-width: 0;
-    flex-shrink: 1;
-    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s, gap 0.3s ease;
+ * 导航栏条状背景的模糊半径。
+ */
+@property --navbar-surface-blur {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
 }
 
-/* 导航链接样式 */
-.nav-link-container {
+@utility navbar-surface-transition {
+  transition:
+    background-color 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+    --navbar-surface-blur 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+    border-radius 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ============================================
+ * 基础导航栏样式
+ * 适用: 所有模式，所有设备
+ * ============================================ */
+#navbar>div {
+    background-color: var(--card-bg);
+    border: 1px solid transparent;
+    border-radius: 0 0 0.75rem 0.75rem;
+    --navbar-surface-blur: 0px;
+    /* 给下面的 ::before 当定位包含块 */
     position: relative;
+    /* 勿加 will-change/z-index，避免 ::before 采样失效 */
+    @apply navbar-surface-transition;
 }
 
-/* 小屏幕时只显示图标 */
-@media (max-width: 1279px) {
-    .nav-link-item {
-        width: 2.75rem; /* 11 * 0.25rem */
-        padding-left: 0;
-        padding-right: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+/* ============================================
+ * 导航栏自身的毛玻璃层。
+ * z-index: -1 让它落在导航栏底色之上、内容之下；底色是匀色，
+ * blur(底色 over 壁纸) == 底色 over blur(壁纸)，观感与把滤镜写在父元素上一致。
+ * inset: 0 只盖到 padding box，是为了不遮住 .enable-card-border 下的可见边框。
+ * 注意：滤镜必须挂在本 ::before 上（移到本体会让内部面板毛玻璃失效）。
+ * ============================================ */
+#navbar>div::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    /* 只用 blur，避免顶部透明时饱和色带 */
+    backdrop-filter: blur(var(--navbar-surface-blur, 0px));
+}
+
+/* 通用滚动阴影：下滑到内容区时给导航栏加向下投影，与内容区分层。
+   #navbar > div 的 box-shadow 会被各壁纸/透明模式规则（main.css 的 @layer components、特异性更高）覆盖，
+   所以把投影加到没有冲突的父级 #navbar 上；#navbar 本身无 border-radius，需同步圆角让阴影随底部圆角 */
+#navbar {
+    border-radius: 0 0 0.75rem 0.75rem;
+}
+
+#navbar.navbar-sticky-shadow {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+:root.dark #navbar.navbar-sticky-shadow {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+/* semifull 模式的透明阶段不单独显示 sticky shadow，避免 8px 和 50px 两段跳变 */
+html[data-has-wallpaper] #navbar[data-transparent-mode="semifull"]:not(.scrolled).navbar-sticky-shadow>div {
+    box-shadow: none !important;
+}
+
+/* ============================================
+ * 桌面端 - 亮色主题 - Banner模式
+ * 适用: 桌面端(≥1024px) + Banner模式 + 亮色主题
+ * 遵循: transparentMode, blur 配置
+ * ============================================ */
+@media (min-width: 1024px) {
+
+    /* "semi" */
+    html[data-has-wallpaper] #navbar[data-transparent-mode="semi"]>div {
+        --navbar-surface-blur: var(--navbar-glass-blur, 20px) !important;
+        background: color-mix(in oklch, var(--card-bg) calc(var(--opacity-45) * 100%), transparent) !important;
+        border-radius: 0 0 0.75rem 0.75rem !important;
+        box-shadow: inset 0 1px 0 var(--navbar-glass-highlight), 0 1px 0 var(--navbar-glass-hairline) !important;
     }
 
-    .nav-link-text {
-        display: none;
+    /* "semifull" (static) */
+    html[data-has-wallpaper] #navbar[data-transparent-mode="semifull"]>div {
+        --navbar-surface-blur: 0px !important;
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 0 0.75rem 0.75rem !important;
+        box-shadow: none !important;
     }
 
-    .nav-link-icon {
-        margin-left: 0;
+    /* "semifull" (scrolled) */
+    html[data-has-wallpaper] #navbar[data-transparent-mode="semifull"].scrolled>div {
+        --navbar-surface-blur: var(--navbar-glass-blur, 20px) !important;
+        background: color-mix(in oklch, var(--card-bg) calc(var(--opacity-45) * 100%), transparent) !important;
+        border-radius: 0 0 0.75rem 0.75rem !important;
+        box-shadow: inset 0 1px 0 var(--navbar-glass-highlight), 0 1px 0 var(--navbar-glass-hairline) !important;
     }
 }
 
-/* 大屏幕时显示图标+文字 */
-@media (min-width: 1280px) {
-    .nav-link-item {
-        padding-left: 0.75rem; /* 3 * 0.25rem */
-        padding-right: 0.75rem;
+/* ============================================
+ * 移动端 - 亮色主题 - Banner模式
+ * 适用: 移动端(≤1023px) + Banner模式 + 亮色主题 + 仅首页生效
+ * ============================================ */
+@media (max-width: 1023px) {
+
+    /* "semi" */
+    html[data-has-wallpaper] #navbar[data-transparent-mode="semi"][data-is-home="true"]>div {
+        --navbar-surface-blur: var(--navbar-glass-blur, 20px) !important;
+        background: color-mix(in oklch, var(--card-bg) calc(var(--opacity-45) * 100%), transparent) !important;
+        border-radius: 0 0 0.75rem 0.75rem !important;
+        box-shadow: inset 0 1px 0 var(--navbar-glass-highlight), 0 1px 0 var(--navbar-glass-hairline) !important;
     }
 
-    .nav-link-text {
-        display: inline;
+    /* "semifull" (static) */
+    html[data-has-wallpaper] #navbar[data-transparent-mode="semifull"][data-is-home="true"]>div {
+        --navbar-surface-blur: 0px !important;
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 0 0.75rem 0.75rem !important;
+        box-shadow: none !important;
+    }
+
+    /* "semifull" (scrolled) */
+    html[data-has-wallpaper] #navbar[data-transparent-mode="semifull"][data-is-home="true"].scrolled>div {
+        --navbar-surface-blur: var(--navbar-glass-blur, 20px) !important;
+        background: color-mix(in oklch, var(--card-bg) calc(var(--opacity-45) * 100%), transparent) !important;
+        border-radius: 0 0 0.75rem 0.75rem !important;
+        box-shadow: inset 0 1px 0 var(--navbar-glass-highlight), 0 1px 0 var(--navbar-glass-hairline) !important;
     }
 }
 
-/* 按钮区域基础布局样式（避免 flex 子项溢出） */
-.navbar-buttons {
-    min-width: 0;
-    flex-shrink: 0;
+/* ============================================
+ * 桌面端 - 暗色主题 - Banner模式
+ * ============================================ */
+@media (min-width: 1024px) {
+
+    /* "semi" */
+    :root.dark[data-has-wallpaper] #navbar[data-transparent-mode="semi"]>div {
+        background: color-mix(in oklch, var(--card-bg) calc(var(--opacity-45) * 100%), transparent) !important;
+        box-shadow: inset 0 1px 0 var(--navbar-glass-highlight), 0 1px 0 var(--navbar-glass-hairline) !important;
+    }
+
+    /* "semifull" (static) */
+    :root.dark[data-has-wallpaper] #navbar[data-transparent-mode="semifull"]>div {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    /* "semifull" (scrolled) */
+    :root.dark[data-has-wallpaper] #navbar[data-transparent-mode="semifull"].scrolled>div {
+        background: color-mix(in oklch, var(--card-bg) calc(var(--opacity-45) * 100%), transparent) !important;
+        box-shadow: inset 0 1px 0 var(--navbar-glass-highlight), 0 1px 0 var(--navbar-glass-hairline) !important;
+    }
 }
 
-/* 无banner时使用原始card-base样式，不添加额外的透明效果 */
-/* 确保导航栏在没有banner时有基本的背景色和圆角（低优先级，不覆盖card-base） */
+/* ============================================
+ * 移动端 - 暗色主题 - Banner模式
+ * ============================================ */
+@media (max-width: 1023px) {
+
+    /* "semi" */
+    :root.dark[data-has-wallpaper] #navbar[data-transparent-mode="semi"][data-is-home="true"]>div {
+        background: color-mix(in oklch, var(--card-bg) calc(var(--opacity-45) * 100%), transparent) !important;
+        box-shadow: inset 0 1px 0 var(--navbar-glass-highlight), 0 1px 0 var(--navbar-glass-hairline) !important;
+    }
+
+    /* "semifull" (static) */
+    :root.dark[data-has-wallpaper] #navbar[data-transparent-mode="semifull"][data-is-home="true"]>div {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    /* "semifull" (scrolled) */
+    :root.dark[data-has-wallpaper] #navbar[data-transparent-mode="semifull"][data-is-home="true"].scrolled>div {
+        background: color-mix(in oklch, var(--card-bg) calc(var(--opacity-45) * 100%), transparent) !important;
+        box-shadow: inset 0 1px 0 var(--navbar-glass-highlight), 0 1px 0 var(--navbar-glass-hairline) !important;
+    }
+}
+
+/* ============================================
+ * 移动端去掉底部圆角
+ * ============================================ */
+@media (max-width: 767px) {
+    #navbar>div {
+        border-radius: 0 !important;
+    }
+
+    /* 覆盖 banner 模式 semi / semifull 下的圆角 */
+    html[data-has-wallpaper] #navbar[data-transparent-mode="semi"][data-is-home="true"]>div,
+    html[data-has-wallpaper] #navbar[data-transparent-mode="semifull"][data-is-home="true"]>div,
+    html[data-has-wallpaper] #navbar[data-transparent-mode="semifull"][data-is-home="true"].scrolled>div {
+        border-radius: 0 !important;
+    }
+}
+
+
+/* 页面切换期间强制 semifull 保持透明，避免自动回顶时出现背景闪烁 */
+.is-page-transitioning[data-has-wallpaper] #navbar[data-transparent-mode="semifull"]:not(.scrolled)>div {
+    --navbar-surface-blur: 0px !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    transition: none !important;
+}
+
+
+
+/* ============================================
+ * 下拉菜单与浮动面板：始终毛玻璃
+ * ============================================
+ * 模糊半径跟随 navbar.blur（Layout.astro 注入到 :root 的 --navbar-panel-blur），
+ * 但带一个最小值 —— 导航栏可以用 blur: 0 关掉毛玻璃，面板则始终保留毛玻璃。
+ *
+ * 能生效的前提是导航栏自身的滤镜已经下移到 #navbar>div::before（见文件顶部），
+ * 面板不再被祖先的 backdrop root 截断。
+ *
+ * 纯色背景模式（data-wallpaper-mode="none"）底下没有可模糊的对象，
+ * 排除掉，落回 main.css 里 .float-panel 原本的不透明卡片样式。
+ */
+
+/* 亮色主题 */
+html:not([data-wallpaper-mode="none"])[data-has-wallpaper]
+    :is(.dropdown-content, .float-panel),
+html:not([data-wallpaper-mode="none"])
+    body.wallpaper-transparent
+    :is(.dropdown-content, .float-panel) {
+    background: rgba(255, 255, 255, 0.55) !important;
+    backdrop-filter: blur(var(--navbar-panel-blur, 20px)) saturate(1.5) !important;
+    box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+/* 暗色主题 */
+:root.dark:not([data-wallpaper-mode="none"])[data-has-wallpaper]
+    :is(.dropdown-content, .float-panel),
+:root.dark:not([data-wallpaper-mode="none"])
+    body.wallpaper-transparent
+    :is(.dropdown-content, .float-panel) {
+    background: rgba(23, 23, 23, 0.6) !important;
+    backdrop-filter: blur(var(--navbar-panel-blur, 20px)) saturate(1.5) !important;
+    box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ============================================
+ * 全宽导航栏适配 (Full Width Navbar)
+ * 确保在开启全宽模式时覆盖所有圆角和宽度限制
+ * 针对所有模式（Banner模式、壁纸模式、透明模式）统一去除圆角
+ * 使用高优先级选择器确保覆盖原主题样式
+ * ============================================ */
+#navbar-wrapper #navbar[data-full-width="true"] > div,
+html[data-has-wallpaper] #navbar-wrapper #navbar[data-full-width="true"] > div,
+body.wallpaper-transparent #navbar-wrapper #navbar[data-full-width="true"] > div,
+#navbar-wrapper #navbar[data-full-width="true"].scrolled > div {
+    border-radius: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+}
+
+/* ============================================
+ * 导航栏面板位置适配
+ * ============================================ */
 #navbar > div {
-    background: var(--card-bg);
-    border-radius: var(--radius-large);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --navbar-panel-inset: calc(1rem + max(0px, (100% - 2rem - var(--page-width)) / 2));
 }
 
-
-/* 半透明模式 - 在有banner时启用 */
-:is(#banner-wrapper ~ *, body:has(#banner-wrapper)) #navbar[data-transparent-mode="semi"] > div {
-    backdrop-filter: blur(20px) !important;
-    background: rgba(255, 255, 255, 0.55) !important;
-    border: 1px solid rgba(255, 255, 255, 0.55) !important;
-    border-radius: 0.75rem !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-/* 半透明模式 - 在有banner时启用 - 暗色主题 */
-:root.dark :is(#banner-wrapper ~ *, body:has(#banner-wrapper)) #navbar[data-transparent-mode="semi"] > div {
-    background: rgba(0, 0, 0, 0.55) !important;
-    border: 1px solid rgba(0, 0, 0, 0.55) !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+#navbar > div #search-panel,
+#navbar > div #display-setting {
+    right: var(--navbar-panel-inset);
 }
 
-/* 完全透明模式 - 在有banner时启用 */
-:is(#banner-wrapper ~ *, body:has(#banner-wrapper)) #navbar[data-transparent-mode="full"] > div {
-    backdrop-filter: none !important;
-    background: transparent !important;
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-/* 完全透明模式 - 在有banner时启用 - 暗色主题 */
-:root.dark :is(#banner-wrapper ~ *, body:has(#banner-wrapper)) #navbar[data-transparent-mode="full"] > div {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-/* 半完全透明模式 - 在有banner时启用 - 默认状态：页面顶部时完全透明 */
-:is(#banner-wrapper ~ *, body:has(#banner-wrapper)) #navbar[data-transparent-mode="semifull"] > div {
-    backdrop-filter: none !important;
-    background: transparent !important;
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-/* 半完全透明模式 - 在有banner时启用 - 默认状态：页面顶部时完全透明 - 暗色主题 */
-:root.dark :is(#banner-wrapper ~ *, body:has(#banner-wrapper)) #navbar[data-transparent-mode="semifull"] > div {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-/* 半完全透明模式 - 在有banner时启用 - 滚动状态：下滑后变为半透明圆角 */
-:is(#banner-wrapper ~ *, body:has(#banner-wrapper)) #navbar[data-transparent-mode="semifull"].scrolled > div {
-    backdrop-filter: blur(20px) !important;
-    background: rgba(255, 255, 255, 0.55) !important;
-    border: 1px solid rgba(255, 255, 255, 0.55) !important;
-    border-radius: 0.75rem !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-/* 半完全透明模式 - 在有banner时启用 - 滚动状态：下滑后变为半透明圆角 - 暗色主题 */
-:root.dark :is(#banner-wrapper ~ *, body:has(#banner-wrapper)) #navbar[data-transparent-mode="semifull"].scrolled > div {
-    background: rgba(0, 0, 0, 0.55) !important;
-    border: 1px solid rgba(0, 0, 0, 0.55) !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+/* 音乐面板原本比其它面板再往里 3rem（right-16 对 right-4），保持这个相对关系 */
+#navbar > div #music-nav-panel {
+    right: calc(var(--navbar-panel-inset) + 3rem);
 }
 
-/* 二级菜单、主题色、夜间模式菜单、手机端导航在有banner时启用半透明效果 */
-:is(#banner-wrapper ~ *, body:has(#banner-wrapper)) .dropdown-content,
-:is(#banner-wrapper ~ *, body:has(#banner-wrapper)) #display-setting,
-:is(#banner-wrapper ~ *, body:has(#banner-wrapper)) #nav-menu-panel,
-:is(#banner-wrapper ~ *, body:has(#banner-wrapper)) #translate-panel,
-:is(#banner-wrapper ~ *, body:has(#banner-wrapper)) #search-panel {
-    backdrop-filter: blur(20px) !important;
-    background: rgba(255, 255, 255, 0.55) !important;
-    border: 1px solid rgba(255, 255, 255, 0.55) !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
-}
-/* 二级菜单、主题色、夜间模式菜单、手机端导航在有banner时启用半透明效果 - 暗色主题 */
-:root.dark :is(#banner-wrapper ~ *, body:has(#banner-wrapper)) .dropdown-content,
-:root.dark :is(#banner-wrapper ~ *, body:has(#banner-wrapper)) #display-setting,
-:root.dark :is(#banner-wrapper ~ *, body:has(#banner-wrapper)) #nav-menu-panel,
-:root.dark :is(#banner-wrapper ~ *, body:has(#banner-wrapper)) #translate-panel,
-:root.dark :is(#banner-wrapper ~ *, body:has(#banner-wrapper)) #search-panel {
-    background: rgba(0, 0, 0, 0.55) !important;
-    border: 1px solid rgba(0, 0, 0, 0.55) !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
-}
-
-/* 响应式优化 */
-
-/* 桌面端&平板端布局 */
-@media (min-width: 768px) {
-    /* 使用 Grid 布局确保中间区域在有空间时居中 */
-    #navbar > div {
-        display: grid !important;
-        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-        justify-content: space-between;
-        align-items: center;
-    }
-    /* 确保左侧 Home 按钮不拉伸并靠左 */
-    #navbar > div > a:first-child {
-        justify-self: start;
-    }
-
-    #navbar .navbar-nav-links {
-        position: static;
-        left: unset;
-        translate: none;
-        justify-self: center;
-        gap: clamp(0.12rem, 1vw, 0.36rem);
-    }
-
-    #navbar .navbar-buttons {
-        justify-self: end;
-        gap: clamp(0.12rem, 1vw, 0.36rem);
+@media (max-width: 767px) {
+    #navbar > div #search-panel {
+        left: var(--navbar-panel-inset);
     }
 }
 
-/* 非大屏桌面端&平板端优化 */
-@media (min-width: 768px) and (max-width: 1279px) {
-    #navbar .navbar-nav-links {
-        gap: 0.2rem;
-    }
-
-    #navbar .navbar-buttons {
-        gap: 0.2rem;
-    }
-
-    /* 搜索状态下的避让逻辑以防重叠 */
-    #navbar.is-searching .navbar-nav-links {
-        opacity: 0;
-        scale: 0.9;
-        pointer-events: none;
-        visibility: hidden;
+/* ============================================
+ * 小于1280px时隐藏导航栏菜单图标
+ * ============================================ */
+@media (max-width: 1279px) {
+    .navbar-icon {
+        display: none !important;
     }
 }
 
-/* 手机端导航栏 */
-@media (max-width: 768px) {
-    #navbar > div {
-        max-width: none !important;
-        width: 100% !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-    }
+/* semi 滚动后加回投影 */
+html[data-has-wallpaper] #navbar[data-transparent-mode="semi"].navbar-sticky-shadow>div {
+    box-shadow: inset 0 1px 0 var(--navbar-glass-highlight), 0 1px 0 var(--navbar-glass-hairline) !important;
 }
-/* 手机端导航栏 - 小屏 */
-@media (max-width: 512px) {
-    #navbar > div {
-        border-radius: 0.3rem !important;
-        margin: 0 !important;
-        padding-left: 0.6rem !important;
-        padding-right: 0.6rem !important;
-        max-width: none !important;
-        width: 100% !important;
-    }
-
-    #navbar-buttons {
-        gap: 0.123rem !important;
-    }
-    /* Only size the trigger buttons; do not affect nested buttons inside panels */
-    #navbar-buttons button:not(.float-panel *) {
-        width: 2.4rem !important;
-        height: 2.4rem !important;
-        padding: 0 !important;
-    }
-
-    /* home button */
-    #navbar > div > a:first-child {
-        max-width: 10rem !important;
-        min-width: 7.2rem !important;
-        height: 2.4rem !important;
-        padding: 0 0.5rem !important;
-    }
-    
-    /* 确保home button内的flex容器能正确收缩 */
-    #navbar > div > a:first-child > div {
-        min-width: 0 !important;
-        max-width: 100% !important;
-    }
-    
-    /* 确保home button内的文字能正确截断 */
-    #navbar > div > a:first-child .home-title {
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
-        min-width: 0 !important;
-        flex-shrink: 1 !important;
-    }
-}
-
-/* 手机端导航栏 - 更小屏 */
-@media (min-width: 333px) and (max-width: 444px) {
-    #navbar-buttons {
-        gap: 0.111rem !important;
-    }
-    /* Only size the trigger buttons; do not affect nested buttons inside panels */
-    #navbar-buttons button:not(.float-panel *) {
-        width: 2.1rem !important;
-        height: 2.1rem !important;
-        padding: 0 !important;
-    }
-
-    /* home button */
-    #navbar > div > a:first-child {
-        max-width: 8rem !important;
-        min-width: 6.3rem !important;
-        height: 2.1rem !important;
-        padding: 0 0.4rem !important;
-    }
-    
-    /* 确保home button内的flex容器能正确收缩 */
-    #navbar > div > a:first-child > div {
-        min-width: 0 !important;
-        max-width: 100% !important;
-    }
-    
-    /* 确保home button内的文字能正确截断 */
-    #navbar > div > a:first-child .home-title {
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
-        min-width: 0 !important;
-        flex-shrink: 1 !important;
-    }
-}
-
-/* 手机端导航栏按钮 -超小屏 */
-@media (max-width: 333px) {
-    #navbar-buttons {
-        gap: 0 !important;
-        justify-content: flex-end !important;
-    }
-
-    /* Hide home button text (keep icon) */
-    #navbar > div > a:first-child > div {
-        font-size: 0 !important;
-    }
+:root.dark[data-has-wallpaper] #navbar[data-transparent-mode="semi"].navbar-sticky-shadow>div {
+    box-shadow: inset 0 1px 0 var(--navbar-glass-highlight), 0 1px 0 var(--navbar-glass-hairline) !important;
 }

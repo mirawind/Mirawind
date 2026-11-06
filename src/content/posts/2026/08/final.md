@@ -2,7 +2,7 @@
 title: 2026年8月总结
 published: 2026-09-16
 updated: 2026-10-27
-cover: ./116220536_p0.png
+image: ./116220536_p0.png
 tags:
   - 月度回顾
 category: 随笔

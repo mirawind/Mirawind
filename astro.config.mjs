@@ -1,91 +1,218 @@
-import cloudflarePages from "@astrojs/cloudflare";
-import sitemap from "@astrojs/sitemap";
-import svelte, { vitePreprocess } from "@astrojs/svelte";
+import { setMaxListeners } from "node:events";
+import cloudflare from "@astrojs/cloudflare";
+import { unified } from "@astrojs/markdown-remark";
+import mdx from "@astrojs/mdx";
 import vercel from "@astrojs/vercel";
+import sitemap from "@astrojs/sitemap";
+import svelte from "@astrojs/svelte";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import swup from "@swup/astro";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig } from "astro/config";
-import decapCmsOauth from "astro-decap-cms-oauth";
+import { defineConfig, fontProviders } from "astro/config";
 import expressiveCode from "astro-expressive-code";
 import icon from "astro-icon";
+import { pluginLanguageLogo } from "ec-lang-logo"; /* Language Logo */
+import { pluginCollapsible } from "expressive-code-collapsible"; /* Collapsible */
+import { pluginLanguageBadge } from "expressive-code-language-badge"; /* Language Badge */
+import katex from "katex";
+import "katex/dist/contrib/mhchem.mjs"; // 加载 mhchem 扩展
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypeCallouts from "rehype-callouts";
+import rehypeCodeGroup from "rehype-code-group"; /* Tab 代码块 */
 import rehypeComponents from "rehype-components"; /* Render the custom directive content */
 import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
+import remarkAdmonitionToBlockquoteCallout from "remark-admonition-to-blockquote-callout";
 import remarkDirective from "remark-directive"; /* Handle directives */
-import remarkGithubAdmonitionsToDirectives from "remark-github-admonitions-to-directives";
 import remarkMath from "remark-math";
 import remarkSectionize from "remark-sectionize";
-
-import { siteConfig } from "./src/config.ts";
-import { pluginCollapseButton } from "./src/plugins/expressive-code/collapse-button.ts";
-import { pluginCopyButton } from "./src/plugins/expressive-code/copy-button.js";
-import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge.ts";
-import { AdmonitionComponent } from "./src/plugins/rehype-component-admonition.mjs";
+import {
+	commentConfig,
+	dynamicConfig,
+	expressiveCodeConfig,
+	fontConfig,
+	fontsList,
+	mermaidConfig,
+	plantumlConfig,
+	siteConfig,
+} from "./src/config";
+import I18nKey from "./src/i18n/i18nKey";
+import { i18n } from "./src/i18n/translation";
 import { GithubCardComponent } from "./src/plugins/rehype-component-github-card.mjs";
+import { rehypeDiagramPanZoom } from "./src/plugins/rehype-diagram-panzoom.mjs";
+import rehypeEmailProtection from "./src/plugins/rehype-email-protection.mjs";
+import rehypeExternalLinks from "./src/plugins/rehype-external-links.mjs";
+import rehypeFigure from "./src/plugins/rehype-figure.mjs";
+import rehypeImageReferrerPolicy from "./src/plugins/rehype-image-referrerpolicy.mjs";
 import { rehypeMermaid } from "./src/plugins/rehype-mermaid.mjs";
+import { rehypePlantuml } from "./src/plugins/rehype-plantuml.mjs";
 import { parseDirectiveNode } from "./src/plugins/remark-directive-rehype.js";
 import { remarkExcerpt } from "./src/plugins/remark-excerpt.js";
+import { remarkImageGrid } from "./src/plugins/remark-image-grid.js";
 import { remarkMermaid } from "./src/plugins/remark-mermaid.js";
+import { remarkPlantuml } from "./src/plugins/remark-plantuml.js";
 import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
+import { remarkWikiLink } from "./src/plugins/remark-wiki-link.js";
+import { collectUsedFontCssVars } from "./src/utils/fontHelper";
+
+if (process.env.NODE_ENV === "development") {
+	setMaxListeners(20);
+}
+
+// 全站仍是静态页面；adapter 只用于按需渲染的 server island（朋友圈动态列表，见 src/pages/fcircle.astro）。
+// Vercel 构建产物输出到 .vercel/output，构建后脚本通过 scripts/site-root.ts 定位。
+const adapter = process.env.CF_WORKERS
+	? cloudflare({
+			prerenderEnvironment: "node",
+		})
+	: vercel({
+			// 朋友圈 island 冷启动时要现场抓取全部 Feed，最坏约 24s（17 源 / 并发 5 / 单源超时 6s）
+			maxDuration: 30,
+		});
 
 // https://astro.build/config
-// Choose adapter depending on deployment environment
-const adapter = process.env.CF_PAGES
-	? cloudflarePages()
-	: vercel({ mode: "serverless" });
-
 export default defineConfig({
-	site: siteConfig.siteURL,
+	site: siteConfig.site_url,
+
 	base: "/",
 	trailingSlash: "always",
-	adapter: adapter,
+
+	// 旧站（Twilight）地址兼容：文章列表分页 /blog/、/blog/2/ 和日记 /diary/ 在 Firefly 中的对应页面
+	redirects: {
+		"/blog/[...page]": "/[...page]",
+		"/diary": "/dynamic/",
+	},
+
+	// 字体配置 - 只加载实际使用的字体，跳过未引用的以加快构建
+	fonts: (() => {
+		// 禁用字体功能时直接返回空数组，跳过 Astro Font API 集成
+		if (!fontConfig.enable) return [];
+
+		const used = collectUsedFontCssVars(fontConfig);
+		return fontsList
+			.filter((f) => used.has(f.cssVariable))
+			.map((f) => {
+				let provider;
+				switch (f.provider) {
+					case "google":
+						provider = fontProviders.google();
+						break;
+					case "fontsource":
+						provider = fontProviders.fontsource();
+						break;
+					case "local":
+						provider = fontProviders.local();
+						break;
+					case "bunny":
+						provider = fontProviders.bunny();
+						break;
+					case "fontshare":
+						provider = fontProviders.fontshare();
+						break;
+					case "npm":
+						provider = fontProviders.npm();
+						break;
+					default:
+						provider = f.provider;
+				}
+				return { ...f, provider };
+			});
+	})(),
+
+	adapter,
+
+	// 图像优化配置
+	image: {
+		// 组件可自行传入 layout/widths；这里只控制 Markdown 正文图片
+		layout: "none",
+	},
+
 	integrations: [
-		decapCmsOauth({
-			decapCMSVersion: "3.9.0",
-			oauthDisabled: false, // Enable OAuth as configured in config.yml
-		}),
 		swup({
 			theme: false,
 			animationClass: "transition-swup-", // see https://swup.js.org/options/#animationselector
-			containers: ["#swup-container", "#left-sidebar", "#right-sidebar"],
+			// the default value `transition-` cause transition delay
+			// when the Tailwind class `transition-all` is used
+			containers: [
+				"#banner-overlay-container",
+				"#banner-dim-container",
+				"#swup-container",
+				"#left-sidebar-dynamic",
+				"#right-sidebar-dynamic",
+				"#floating-toc-wrapper",
+			],
+			smoothScrolling: false,
 			cache: true,
-			preload: true,
+			preload: {
+				hover: true,
+				visible: true,
+			},
 			accessibility: true,
 			updateHead: true,
 			updateBodyClass: false,
 			globalInstance: true,
-			// Scroll related configuration optimization
-			smoothScrolling: false, // Disable smooth scrolling to improve performance and avoid conflicts with anchor navigation
+			// 滚动相关配置优化
 			resolveUrl: (url) => url,
 			animateHistoryBrowsing: false,
 			skipPopStateHandling: (event) => {
-				// Skip anchor link handling, let the browser handle it natively
+				// 跳过锚点链接的处理，让浏览器原生处理
 				return event.state?.url?.includes("#");
 			},
 		}),
 		icon({
 			include: {
-				"fa6-brands": ["*"],
-				"fa6-regular": ["*"],
-				"fa6-solid": ["*"],
+				"material-symbols": ["*"],
+				"fa7-brands": ["*"],
+				"fa7-regular": ["*"],
+				"fa7-solid": ["*"],
+				"simple-icons": ["*"],
 				mdi: ["*"],
+				mingcute: ["*"],
 			},
 		}),
 		expressiveCode({
-			themes: ["github-light", "github-dark"],
-			themeCSSSelector: (theme) => `[data-theme="${theme}"]`,
+			themes: [expressiveCodeConfig.darkTheme, expressiveCodeConfig.lightTheme],
+			useDarkModeMediaQuery: false,
+			themeCssSelector: (theme) => `[data-theme='${theme.name}']`,
 			plugins: [
+				// pluginLanguageBadge 配置 - 从expressiveCodeConfig读取设置
+				...(expressiveCodeConfig.pluginLanguageBadge?.enable === true
+					? [pluginLanguageBadge()]
+					: []),
+				// pluginLanguageLogo 配置 - 从expressiveCodeConfig读取设置
+				...(expressiveCodeConfig.pluginLanguageLogo?.enable === true
+					? [
+							pluginLanguageLogo({
+								color: expressiveCodeConfig.pluginLanguageLogo.color ?? "mono",
+								excludedLangs:
+									expressiveCodeConfig.pluginLanguageLogo.excludedLangs ?? [],
+							}),
+						]
+					: []),
 				pluginCollapsibleSections(),
 				pluginLineNumbers(),
-				pluginCollapseButton(),
-				pluginCopyButton(),
-				pluginLanguageBadge(),
+				// pluginCollapsible 配置 - 从expressiveCodeConfig读取设置，使用i18n文本
+				...(expressiveCodeConfig.pluginCollapsible?.enable === true
+					? [
+							pluginCollapsible({
+								lineThreshold:
+									expressiveCodeConfig.pluginCollapsible.lineThreshold || 15,
+								previewLines:
+									expressiveCodeConfig.pluginCollapsible.previewLines || 8,
+								defaultCollapsed:
+									expressiveCodeConfig.pluginCollapsible.defaultCollapsed ??
+									true,
+								expandButtonText: i18n(I18nKey.codeCollapsibleShowMore),
+								collapseButtonText: i18n(I18nKey.codeCollapsibleShowLess),
+								expandedAnnouncement: i18n(I18nKey.codeCollapsibleExpanded),
+								collapsedAnnouncement: i18n(I18nKey.codeCollapsibleCollapsed),
+							}),
+						]
+					: []),
 			],
 			defaultProps: {
-				wrap: true,
+				wrap: false,
 				overridesByLang: {
 					shellsession: {
 						showLineNumbers: false,
@@ -93,118 +220,169 @@ export default defineConfig({
 				},
 			},
 			styleOverrides: {
-				codeBackground: "var(--codeblock-bg)",
 				borderRadius: "0.75rem",
-				borderColor: "none",
 				codeFontSize: "0.875rem",
-				codeFontFamily: "var(--font-code)",
+				codeFontFamily:
+					"var(--font-code, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace)",
 				codeLineHeight: "1.5rem",
-				frames: {
-					editorBackground: "var(--codeblock-bg)",
-					terminalBackground: "var(--codeblock-bg)",
-					terminalTitlebarBackground: "var(--codeblock-bg)",
-					editorTabBarBackground: "var(--codeblock-bg)",
-					editorActiveTabBackground: "none",
-					editorActiveTabIndicatorBottomColor: "var(--primary)",
-					editorActiveTabIndicatorTopColor: "none",
-					editorTabBarBorderBottomColor: "var(--codeblock-bg)",
-					terminalTitlebarBorderBottomColor: "none",
-					copyButtonBackground: "var(--btn-regular-bg)",
-					copyButtonBackgroundHover: "var(--btn-regular-bg-hover)",
-					copyButtonBackgroundActive: "var(--btn-regular-bg-active)",
-					copyButtonForeground: "var(--btn-content)",
-				},
+				frames: {},
 				textMarkers: {
 					delHue: 0,
 					insHue: 180,
 					markHue: 250,
 				},
+				languageBadge: {
+					fontSize: "0.75rem",
+					fontWeight: "bold",
+					borderRadius: "0.25rem",
+					opacity: "1",
+					borderWidth: "0px",
+					borderColor: "transparent",
+				},
 			},
 			frames: {
-				showCopyToClipboardButton: false,
+				// 保留原生复制按钮，外观由 src/styles/expressive-code.css 覆盖成主题风格
+				showCopyToClipboardButton: true,
 			},
 		}),
-		svelte({
-			preprocess: vitePreprocess(),
+		svelte(),
+		sitemap({
+			filter: (page) => {
+				// 根据页面开关配置过滤sitemap
+				const url = new URL(page);
+				const pathname = url.pathname;
+				if (pathname === "/dynamic/" && !siteConfig.pages.dynamic) {
+					return false;
+				}
+				if (pathname.startsWith("/gallery/") && !siteConfig.pages.gallery) {
+					return false;
+				}
+				if (pathname === "/friends/" && !siteConfig.pages.friends) {
+					return false;
+				}
+				if (pathname === "/guestbook/" && !siteConfig.pages.guestbook) {
+					return false;
+				}
+				if (pathname === "/booknav/" && !siteConfig.pages.booknav) {
+					return false;
+				}
+				if (pathname === "/bilibili/" && !siteConfig.pages.bilibili) {
+					return false;
+				}
+				if (pathname === "/bangumi/" && !siteConfig.pages.bangumi) {
+					return false;
+				}
+				if (pathname === "/vndb/" && !siteConfig.pages.vndb) {
+					return false;
+				}
+				if (pathname === "/myanimelist/" && !siteConfig.pages.mal) {
+					return false;
+				}
+				// 动态页评论嵌入页：评论关闭时重定向到 /404/，不应进 sitemap
+				if (
+					pathname === "/dynamic/comments/" &&
+					(dynamicConfig.showComment === false ||
+						!commentConfig.type ||
+						commentConfig.type === "none")
+				) {
+					return false;
+				}
+				if (pathname === "/sponsor/" && !siteConfig.pages.sponsor) {
+					return false;
+				}
+				return true;
+			},
 		}),
-		sitemap(),
+		mdx(),
 	],
 	markdown: {
-		remarkPlugins: [
-			remarkMath,
-			remarkReadingTime,
-			remarkExcerpt,
-			remarkGithubAdmonitionsToDirectives,
-			remarkDirective,
-			remarkSectionize,
-			parseDirectiveNode,
-			remarkMermaid,
-		],
-		rehypePlugins: [
-			rehypeKatex,
-			rehypeSlug,
-			rehypeMermaid,
-			[
-				rehypeComponents,
-				{
-					components: {
-						github: GithubCardComponent,
-						note: (x, y) => AdmonitionComponent(x, y, "note"),
-						tip: (x, y) => AdmonitionComponent(x, y, "tip"),
-						important: (x, y) => AdmonitionComponent(x, y, "important"),
-						caution: (x, y) => AdmonitionComponent(x, y, "caution"),
-						warning: (x, y) => AdmonitionComponent(x, y, "warning"),
-					},
-				},
+		processor: unified({
+			remarkPlugins: [
+				...(siteConfig.post.rehypeCallouts.enablePythonMarkdownAdmonitions !==
+				false
+					? [remarkAdmonitionToBlockquoteCallout]
+					: []),
+				remarkMath,
+				remarkReadingTime,
+				remarkWikiLink,
+				remarkImageGrid,
+				remarkExcerpt,
+				remarkDirective,
+				remarkSectionize,
+				parseDirectiveNode,
+				remarkMermaid,
+				[remarkPlantuml, plantumlConfig],
 			],
-			[
-				rehypeAutolinkHeadings,
-				{
-					behavior: "append",
-					properties: {
-						className: ["anchor"],
-					},
-					content: {
-						type: "element",
-						tagName: "span",
-						properties: {
-							className: ["anchor-icon"],
-							"data-pagefind-ignore": true,
+			rehypePlugins: [
+				[rehypeKatex, { katex }],
+				[rehypeCallouts, { theme: siteConfig.post.rehypeCallouts.theme }],
+				rehypeSlug,
+				rehypeCodeGroup,
+				[rehypeMermaid, mermaidConfig],
+				rehypePlantuml,
+				rehypeDiagramPanZoom,
+				rehypeFigure,
+				[
+					rehypeImageReferrerPolicy,
+					{ domains: siteConfig.imageOptimization?.noReferrerDomains || [] },
+				],
+				[rehypeExternalLinks, { siteUrl: siteConfig.site_url }],
+				[rehypeEmailProtection, { method: "base64" }], // 邮箱保护插件，支持 'base64' 或 'rot13'
+				[
+					rehypeComponents,
+					{
+						components: {
+							github: GithubCardComponent,
 						},
-						children: [
-							{
-								type: "text",
-								value: "#",
-							},
-						],
 					},
-				},
+				],
+				[
+					rehypeAutolinkHeadings,
+					{
+						behavior: "append",
+						properties: {
+							className: ["anchor"],
+						},
+						content: {
+							type: "element",
+							tagName: "span",
+							properties: {
+								className: ["anchor-icon"],
+								"data-pagefind-ignore": true,
+							},
+							children: [
+								{
+									type: "text",
+									value: "#",
+								},
+							],
+						},
+					},
+				],
 			],
-		],
+		}),
 	},
 	vite: {
 		plugins: [tailwindcss()],
-		optimizeDeps: {
-			// Prevent esbuild from trying to prebundle a package that imports virtual modules like
-			// "astro:env/server" which causes invalid path resolution on Windows.
-			exclude: [
-				"astro-decap-cms-oauth",
-				// Exclude Astro virtual modules so esbuild doesn't try to resolve them
-				"astro:env",
-				"astro:env/server",
-				"astro:env/client",
-				// Swup client modules can be unstable with optimize deps cache on some setups
-				"@swup/astro",
-				"@swup/astro/serialise",
-				"@swup/astro/idle",
-				"@swup/astro/client/Swup",
-				"@swup/astro/client/SwupA11yPlugin",
-				"@swup/astro/client/SwupPreloadPlugin",
-				"@swup/astro/client/SwupHeadPlugin",
-				"@swup/astro/client/SwupScriptsPlugin",
-			],
+		server: {
+			watch: {
+				ignored: ["**/package/**", "**/Firefly-docs/**"],
+			},
+		},
+		resolve: {
+			alias: {
+				"@rehype-callouts-theme": `rehype-callouts/theme/${siteConfig.post.rehypeCallouts.theme}`,
+			},
 		},
 		build: {
+			minify: "esbuild",
+			esbuildOptions: {
+				minify: true,
+				// 删除 debugger 语句；console.log / console.debug 无副作用，未使用返回值时会被 dead code elimination 移除，
+				// console.warn / console.error 保留，确保生产环境出错时仍有日志可查
+				drop: ["debugger"],
+				pure: ["console.log", "console.debug"],
+			},
 			rollupOptions: {
 				onwarn(warning, warn) {
 					// temporarily suppress this warning
@@ -217,9 +395,10 @@ export default defineConfig({
 					warn(warning);
 				},
 			},
+			// CSS 优化
+			cssCodeSplit: true,
+			cssMinify: "esbuild",
+			assetsInlineLimit: 4096,
 		},
-	},
-	build: {
-		inlineStylesheets: "always",
 	},
 });

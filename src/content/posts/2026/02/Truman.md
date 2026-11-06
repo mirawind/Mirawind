@@ -2,9 +2,8 @@
 title: 《楚门的世界》
 published: 2026-02-14
 updated: 2026-02-14
-encrypted: false
 pinned: false
-cover: ./0214.png
+image: ./0214.png
 tags: 
  - 电影
 category: 随笔

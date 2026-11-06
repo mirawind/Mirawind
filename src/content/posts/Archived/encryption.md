@@ -2,7 +2,6 @@
 title: Encryption Example
 published: 2025-12-02
 description: "Password: 123456"
-encrypted: true
 pinned: false
 password: "123456"
 tags:
@@ -23,7 +22,6 @@ This is an example of a password-protected post in the Twilight theme. The conte
 ---
 title: Encryption Example
 published: 2020-02-02
-encrypted: true
 password: "your-password"
 ...
 ---

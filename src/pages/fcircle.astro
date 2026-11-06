@@ -1,0 +1,49 @@
+---
+import { Icon } from "astro-icon/components";
+import FcircleFeed from "@/components/pages/fcircle/FcircleFeed.astro";
+import FcircleHeader from "@/components/pages/fcircle/FcircleHeader.astro";
+import { siteConfig } from "@/config";
+import I18nKey from "@/i18n/i18nKey";
+import { i18n } from "@/i18n/translation";
+import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import { getSelfAvatarSrc } from "@/utils/fcircle-utils";
+import "@/styles/pages/common.css";
+import "@/styles/pages/fcircle.css";
+
+// 检查页面是否启用
+if (!siteConfig.pages.fcircle) {
+	return Astro.redirect("/404/");
+}
+
+// 页面外壳在构建时静态生成；动态列表由 FcircleFeed 以 server island 按需渲染。
+// 博主头像在这里（构建时）生成静态 webp 再传给 island，避免按需渲染时运行时转码。
+const selfAvatar = await getSelfAvatarSrc();
+const fcircleTimeZone = siteConfig.timezone || "UTC";
+
+// 页面标题和描述
+const title = i18n(I18nKey.fcircle);
+const description = i18n(I18nKey.fcircleDescription);
+---
+
+<MainGridLayout title={title} description={description}>
+  <div
+    id="fcircle-root"
+    data-time-zone={fcircleTimeZone}
+    class="flex w-full rounded-(--radius-large) overflow-hidden relative min-h-32"
+  >
+    <FcircleFeed server:defer selfAvatar={selfAvatar}>
+      <div slot="fallback" class="card-base z-10 px-5 sm:px-9 py-6 relative w-full">
+        <FcircleHeader title={title} description={description} />
+        <div class="flex items-center justify-center gap-2 py-16 text-sm text-neutral-400 dark:text-neutral-500" role="status">
+          <Icon is:inline name="mingcute:loading-line" class="text-lg animate-spin" />
+          <span>{i18n(I18nKey.pageViewsLoading)}</span>
+        </div>
+      </div>
+    </FcircleFeed>
+  </div>
+</MainGridLayout>
+
+<script>
+  import { initFcircleManager } from "@/utils/fcircle-manager";
+  initFcircleManager();
+</script>

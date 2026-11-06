@@ -7,7 +7,7 @@ tags:
   - 读书笔记
 category: 笔记
 draft: false
-cover: ./139775743_p0.jpg
+image: ./139775743_p0.jpg
 ---
 《复杂》by Melanie Mitchell（2009），一本科普书。
 

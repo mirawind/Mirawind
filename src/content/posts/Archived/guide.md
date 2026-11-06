@@ -2,10 +2,10 @@
 title: Guide for Blog Template
 published: 2025-12-02
 description: How to use this blog template.
-cover: ""
+image: ""
 pinned: false
 tags: []
-category: Guides
+category: Examples
 draft: true
 ---
 
