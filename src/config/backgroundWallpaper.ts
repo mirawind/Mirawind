@@ -87,7 +87,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 				{
 					name: "GitHub",
 					icon: "fa7-brands:github",
-					url: "https://github.com/50829",
+					url: "https://github.com/mirawind",
 				},
 				{
 					name: "Bilibili",
