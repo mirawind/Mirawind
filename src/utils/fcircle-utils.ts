@@ -1,3 +1,4 @@
+import { getImage } from "astro:assets";
 import Parser from "rss-parser";
 import {
 	getEnabledFriends,
@@ -10,7 +11,7 @@ import {
 	getFcircleDatePresentation,
 	getFcircleRelativeDays,
 } from "./fcircle-date-utils";
-import { getAuthorAvatarUrl } from "./schema-image";
+import { loadLocalImage } from "./schema-image";
 import { url as formatUrl } from "./url-utils";
 
 export interface FcircleItem {
@@ -239,6 +240,17 @@ async function fetchSafeFeedText(
 /**
  * 解析 Feed 原始文本（自动兼容 RSS 2.0 / Atom 与 JSON Feed）
  */
+/**
+ * 按发布时间倒序取最新的 MAX_ENTRIES_PER_FEED 篇。
+ * 不能按 Feed 原始顺序截断：部分站点的 Feed 并非新到旧排列（如 axi404.top），
+ * 直接取前 N 条会漏掉最新文章。
+ */
+function newestEntries(entries: FeedEntry[]): FeedEntry[] {
+	return entries
+		.sort((a, b) => b.pubDate.getTime() - a.pubDate.getTime())
+		.slice(0, MAX_ENTRIES_PER_FEED);
+}
+
 async function parseFeedText(
 	rawText: string,
 	parser: Parser,
@@ -253,7 +265,6 @@ async function parseFeedText(
 			if (Array.isArray(json.items)) {
 				const entries: FeedEntry[] = [];
 				for (const item of json.items) {
-					if (entries.length >= MAX_ENTRIES_PER_FEED) break;
 					const link = item.url || item.id;
 					const dateStr = item.date_published || item.date_modified;
 					if (item.title && link && dateStr && isValidHttpUrl(link)) {
@@ -270,7 +281,7 @@ async function parseFeedText(
 						}
 					}
 				}
-				if (entries.length > 0) return entries;
+				if (entries.length > 0) return newestEntries(entries);
 			}
 		} catch {
 			// 非有效 JSON，回退至 XML 解析
@@ -282,7 +293,6 @@ async function parseFeedText(
 		const feed = await parser.parseString(trimmed);
 		const entries: FeedEntry[] = [];
 		for (const item of feed.items || []) {
-			if (entries.length >= MAX_ENTRIES_PER_FEED) break;
 			const dateStr = item.pubDate || item.date || item.updated;
 			if (item.title && item.link && dateStr && isValidHttpUrl(item.link)) {
 				const pubDate = new Date(dateStr);
@@ -298,7 +308,7 @@ async function parseFeedText(
 				}
 			}
 		}
-		return entries;
+		return newestEntries(entries);
 	} catch {
 		return [];
 	}
@@ -381,6 +391,26 @@ async function mapConcurrent<T, R>(
 /**
  * 聚合全站朋友圈动态：包含博主自身本地文章、启用的友链博客文章、独立订阅源文章
  */
+/**
+ * 博主自身在朋友圈中显示的头像（站内地址）。
+ * 不能用 schema-image 的 getAuthorAvatarUrl()：它为 schema.org 拼接 site_url 绝对地址，
+ * 本地预览、预览部署或新站点尚未上线时会指向线上不存在的资源而裂图。
+ */
+async function getSelfAvatarSrc(): Promise<string> {
+	const fallback = formatUrl("/favicon/favicon.ico");
+	const avatar = profileConfig.avatar?.trim();
+	if (!avatar) return fallback;
+	if (/^(https?:)?\/\//.test(avatar) || avatar.startsWith("data:")) {
+		return avatar;
+	}
+	if (avatar.startsWith("/")) return formatUrl(avatar);
+	const img = await loadLocalImage(avatar, "");
+	if (!img) return fallback;
+	// 头像最大显示 44px，128px 足够覆盖 3x 屏
+	const optimized = await getImage({ src: img, width: 128, format: "webp" });
+	return optimized.src;
+}
+
 export async function getFcircleItems(): Promise<FcircleItem[]> {
 	const parser = new Parser({
 		headers: {
@@ -397,8 +427,7 @@ export async function getFcircleItems(): Promise<FcircleItem[]> {
 
 	// 1. 本地博主文章（0 外部网络依赖，离线可用且构建即最新）
 	try {
-		const authorAvatar = await getAuthorAvatarUrl();
-		const selfAvatar = authorAvatar || "/favicon/favicon.ico";
+		const selfAvatar = await getSelfAvatarSrc();
 
 		const localPosts = await getSortedPostsList();
 		for (const post of localPosts) {
