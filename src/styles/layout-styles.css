@@ -386,7 +386,7 @@ html[data-wallpaper-mode="fullscreen"] #wallpaper-wrapper img {
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
-    object-position: center !important;
+    object-position: var(--wallpaper-position, center) !important;
     filter: blur(var(--fullscreen-blur, var(--overlay-blur, 0px))) !important;
     transform: scale(1.05);
     opacity: 1 !important;
@@ -420,7 +420,7 @@ html[data-wallpaper-mode="fullscreen"] body.is-home:not(.sticky-navbar):not(.dyn
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
-    object-position: center !important;
+    object-position: var(--wallpaper-position, center) !important;
     filter: blur(var(--fullscreen-blur, var(--overlay-blur, 0px))) !important;
     /* 始终放大 1.05，让 blur 采样始终落在图片内，避免采样到容器 bg-black 黑底而在四周闪黑影 */
     transform: scale(1.05);
@@ -611,7 +611,7 @@ html[data-wallpaper-mode="fullscreen"][data-fullscreen-layout="classic"] #wallpa
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
-    object-position: center !important;
+    object-position: var(--wallpaper-position, center) !important;
     filter: none !important;
     transform: scale(1.05) !important;
     opacity: 1 !important;

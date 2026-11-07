@@ -23,6 +23,9 @@ const wallpaperPosition = state.isFullscreenMode
 	? (backgroundWallpaper.fullscreen?.position ??
 		backgroundWallpaper.banner?.position)
 	: backgroundWallpaper.banner?.position;
+// 全屏模式的样式用 !important 统一了图片 object-position，组件内联的 position 会被压掉；
+// 通过 CSS 变量把配置的位置传给这些样式（layout-styles.css 中的 --wallpaper-position）
+const wallpaperPositionVar = wallpaperPosition || "center";
 ---
 
 <!-- Wallpaper - 如果允许切换则始终渲染，否则只渲染当前模式 -->
@@ -32,7 +35,7 @@ const wallpaperPosition = state.isFullscreenMode
     {state.hasMultipleImages ? (
     /* 轮播模式：渲染所有图片为 slide-item */
     <div class:list={["relative h-full w-full bg-(--page-bg)", `effect-${state.bannerCarouselEffect}`]} id="banner-images-container"
-         style={`z-index: 5; --carousel-interval: ${state.bannerCarouselInterval}ms`}
+         style={`z-index: 5; --carousel-interval: ${state.bannerCarouselInterval}ms; --wallpaper-position: ${wallpaperPositionVar}`}
          data-carousel-enabled={state.bannerCarouselEnabledDefault}
          data-carousel-switchable={state.bannerCarouselSwitchable}
          data-carousel-interval={state.bannerCarouselInterval}
@@ -111,7 +114,7 @@ const wallpaperPosition = state.isFullscreenMode
     </div>
     ) : (
     /* 单图模式 */
-    <div class="relative h-full w-full" id="banner-images-container">
+    <div class="relative h-full w-full" id="banner-images-container" style={`--wallpaper-position: ${wallpaperPositionVar}`}>
         {/* 两侧都放在 <template> 里，由下面的脚本按 matchMedia 只实例化匹配的那一侧，
             避免桌面端白下一张手机图（display:none 挡不住 loading="eager"） */}
         {backgroundImages.mobile.length > 0 && (

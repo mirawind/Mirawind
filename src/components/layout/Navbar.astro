@@ -72,7 +72,7 @@ const links: NavBarLink[] = resolveNavMenuLinks();
 const logoConfig = siteConfig.navbar.logo;
 const logoAlt = logoConfig?.alt || siteConfig.title;
 const logoIsImage = logoConfig?.type === "image" || logoConfig?.type === "url";
-const logoBaseClass = "navbar-logo h-7 w-7 mb-1 mr-2 object-contain";
+const logoBaseClass = "navbar-logo h-7 w-7 mb-1 mr-2 object-contain rounded-md";
 
 const logoFiles = import.meta.glob<ImageMetadata>(
 	"../../**/*.{png,jpg,jpeg,webp,avif,gif,svg}",

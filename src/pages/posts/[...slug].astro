@@ -68,6 +68,9 @@ const { entry } = Astro.props;
 const { Content, headings } = await render(entry);
 
 const { remarkPluginFrontmatter } = await render(entry);
+// 文章摘要：优先 frontmatter 的 description，否则和首页卡片一样取正文第一段（remark-excerpt）
+const postSummary: string =
+	entry.data.description || remarkPluginFrontmatter.excerpt || "";
 
 const bannerPostMeta = {
 	title: entry.data.title,
@@ -161,7 +164,7 @@ const jsonLd = {
 		{
 			"@type": "BlogPosting",
 			headline: entry.data.title,
-			description: entry.data.description || entry.data.title,
+			description: postSummary || entry.data.title,
 			keywords: entry.data.tags.length ? entry.data.tags.join(", ") : undefined,
 			author: { "@id": authorPerson["@id"] },
 			publisher: { "@id": publisher["@id"] },
@@ -202,7 +205,7 @@ const seriesData = await getSeriesPosts(entry);
 
 <MainGridLayout
   title={entry.data.title}
-  description={entry.data.description || entry.data.title}
+  description={postSummary || entry.data.title}
   lang={entry.data.lang}
   setOGTypeArticle={true}
   postSlug={entry.id}
@@ -473,7 +476,7 @@ const seriesData = await getSeriesPosts(entry);
                             client:load
                             title={entry.data.title}
                             author={entry.data.author || profileConfig.name}
-                            description={entry.data.description || entry.data.title}
+                            description={postSummary}
                             pubDate={formatDateToYYYYMMDD(entry.data.published)}
                             coverImage={posterCoverUrl}
                             coverImageSelector={posterCoverSelector}
@@ -563,7 +566,7 @@ const seriesData = await getSeriesPosts(entry);
                             client:load
                             title={entry.data.title}
                             author={entry.data.author || profileConfig.name}
-                            description={entry.data.description || entry.data.title}
+                            description={postSummary}
                             pubDate={formatDateToYYYYMMDD(entry.data.published)}
                             coverImage={posterCoverUrl}
                             coverImageSelector={posterCoverSelector}

@@ -23,6 +23,49 @@ let posterImage: string | null = null;
 let generating = false;
 let themeColor = "#558e88"; // Default blue
 const headerTextColor = "#1f2937"; // 站点名称与 Logo 颜色
+// 海报简介最多显示的行数，超出部分以省略号结尾
+const MAX_DESC_LINES = 2;
+
+// 海报文字使用和页面正文相同的字体（fontConfig 选中的站点字体 + 系统保底）
+function getPosterFont(): string {
+	const family = getComputedStyle(document.body).fontFamily;
+	return family || "system-ui, sans-serif";
+}
+
+// canvas 不会自动等待网页字体加载，绘制前先把海报会用到的字加载好，避免回退成系统字体。
+// 按字体逐个加载：整串一起 load 时，只要其中一项失败（如 Astro 生成的 "xxx fallback: Arial"
+// 在没装 Arial 的系统上）就会立刻 reject，根本不等站点字体下载完
+async function loadPosterFont(fontFamily: string, text: string) {
+	if (!document.fonts?.load) return;
+	const families = fontFamily
+		.split(",")
+		.map((f) => f.trim())
+		.filter((f) => f && !/^(sans-serif|serif|system-ui|monospace|-apple-system)$/.test(f));
+	const loads = families.flatMap((family) => [
+		document.fonts.load(`16px ${family}`, text),
+		document.fonts.load(`700 16px ${family}`, text),
+	]);
+	// 最多等 3 秒，网络慢时仍然出图（未加载完的字按系统字体绘制）
+	await Promise.race([
+		Promise.allSettled(loads),
+		new Promise((resolve) => setTimeout(resolve, 3000)),
+	]);
+}
+
+// "YYYY-MM-DD" 直接按日历日期解析；new Date() 会当成 UTC 零点，在 UTC 以西时区显示成前一天
+function parsePubDate(
+	value: string,
+): { day: string; month: string; year: string } | null {
+	const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(value?.trim() ?? "");
+	if (m) return { year: m[1], month: m[2], day: m[3] };
+	const d = new Date(value);
+	if (Number.isNaN(d.getTime())) return null;
+	return {
+		day: d.getDate().toString().padStart(2, "0"),
+		month: (d.getMonth() + 1).toString().padStart(2, "0"),
+		year: d.getFullYear().toString(),
+	};
+}
 
 onMount(() => {
 	// Get theme color from CSS variable
@@ -218,6 +261,11 @@ async function generatePoster() {
 		const width = 425 * scale;
 		const padding = 24 * scale;
 		const logoBox = 22 * scale; // 站点 Logo 尺寸
+		const posterFont = getPosterFont();
+		await loadPosterFont(
+			posterFont,
+			`${siteTitle}${title}${description}${author}${i18n(I18nKey.author)}${i18n(I18nKey.scanToRead)}0123456789.…`,
+		);
 
 		// 1. Prepare resources
 		const qrCodeUrl = await QRCode.toDataURL(url, {
@@ -259,7 +307,7 @@ async function generatePoster() {
 		currentY += padding; // Gap after cover
 
 		// Title
-		ctx.font = `700 ${24 * scale}px 'Roboto', sans-serif`;
+		ctx.font = `700 ${24 * scale}px ${posterFont}`;
 		const titleLines = getLines(ctx, title, contentWidth);
 		const titleLineHeight = 30 * scale;
 		const titleHeight = titleLines.length * titleLineHeight;
@@ -269,10 +317,10 @@ async function generatePoster() {
 		// Description
 		let descHeight = 0;
 		if (description) {
-			ctx.font = `${14 * scale}px 'Roboto', sans-serif`;
+			ctx.font = `${14 * scale}px ${posterFont}`;
 			const descLines = getLines(ctx, description, contentWidth - 16 * scale); // minus border width and gap
 			// Limit to 6 lines
-			const maxDescLines = 6;
+			const maxDescLines = MAX_DESC_LINES;
 			const displayDescLines = descLines.slice(0, maxDescLines);
 			const descLineHeight = 25 * scale; // 1.8 line-height approx
 			descHeight = displayDescLines.length * descLineHeight;
@@ -319,17 +367,7 @@ async function generatePoster() {
 		ctx.restore();
 
 		// Parse Date
-		let dateObj: { day: string; month: string; year: string } | null = null;
-		try {
-			const d = new Date(pubDate);
-			if (!Number.isNaN(d.getTime())) {
-				dateObj = {
-					day: d.getDate().toString().padStart(2, "0"),
-					month: (d.getMonth() + 1).toString().padStart(2, "0"),
-					year: d.getFullYear().toString(),
-				};
-			}
-		} catch (e) {}
+		const dateObj = parsePubDate(pubDate);
 
 		// Draw Cover
 		if (coverImg) {
@@ -384,7 +422,7 @@ async function generatePoster() {
 		ctx.textAlign = "right";
 		ctx.textBaseline = "middle";
 		ctx.fillStyle = "rgba(31, 41, 55, 0.68)";
-		ctx.font = `${11 * scale}px 'Roboto', sans-serif`;
+		ctx.font = `${11 * scale}px ${posterFont}`;
 		const dateWidth = dateText ? ctx.measureText(dateText).width : 0;
 		if (dateText) {
 			ctx.fillText(dateText, width - padding, headerCenterY);
@@ -392,7 +430,7 @@ async function generatePoster() {
 
 		ctx.textAlign = "left";
 		ctx.fillStyle = headerTextColor;
-		ctx.font = `700 ${16 * scale}px 'Roboto', sans-serif`;
+		ctx.font = `700 ${16 * scale}px ${posterFont}`;
 
 		// 站点 Logo，效果对齐导航栏：Logo 在前，标题紧随其后
 		const logoGap = 8 * scale;
@@ -434,7 +472,7 @@ async function generatePoster() {
 		// Draw Title
 		ctx.textBaseline = "top";
 		ctx.textAlign = "left";
-		ctx.font = `700 ${24 * scale}px 'Roboto', sans-serif`;
+		ctx.font = `700 ${24 * scale}px ${posterFont}`;
 		ctx.fillStyle = "#111827";
 		titleLines.forEach((line) => {
 			ctx.fillText(line, padding, drawY);
@@ -458,12 +496,23 @@ async function generatePoster() {
 			);
 			ctx.fill();
 
-			ctx.font = `${14 * scale}px 'Roboto', sans-serif`;
+			ctx.font = `${14 * scale}px ${posterFont}`;
 			ctx.fillStyle = "#4b5563";
-			const descLines = getLines(ctx, description, contentWidth - 16 * scale);
-			const maxDescLines = 6;
+			const descMaxWidth = contentWidth - 16 * scale;
+			const descLines = getLines(ctx, description, descMaxWidth);
+			const maxDescLines = MAX_DESC_LINES;
+			const shownDescLines = descLines.slice(0, maxDescLines);
 
-			descLines.slice(0, maxDescLines).forEach((line) => {
+			// 超出行数时最后一行补省略号（自动摘要取的是正文第一段，可能很长）
+			if (descLines.length > maxDescLines) {
+				let last = shownDescLines[maxDescLines - 1];
+				while (last && ctx.measureText(`${last}…`).width > descMaxWidth) {
+					last = last.slice(0, -1);
+				}
+				shownDescLines[maxDescLines - 1] = `${last}…`;
+			}
+
+			shownDescLines.forEach((line) => {
 				ctx.fillText(line, padding + 16 * scale, drawY);
 				drawY += 25 * scale; // line height
 			});
@@ -531,11 +580,11 @@ async function generatePoster() {
 		ctx.textAlign = "left";
 		ctx.textBaseline = "top";
 		ctx.fillStyle = "#9ca3af";
-		ctx.font = `${12 * scale}px 'Roboto', sans-serif`;
+		ctx.font = `${12 * scale}px ${posterFont}`;
 		ctx.fillText(i18n(I18nKey.author), authorTextX, textCenterY - 20 * scale);
 
 		ctx.fillStyle = "#1f2937";
-		ctx.font = `700 ${20 * scale}px 'Roboto', sans-serif`;
+		ctx.font = `700 ${20 * scale}px ${posterFont}`;
 		ctx.fillText(
 			fitText(ctx, author, authorMaxWidth),
 			authorTextX,
@@ -570,7 +619,7 @@ async function generatePoster() {
 		ctx.textAlign = "center";
 		ctx.textBaseline = "top";
 		ctx.fillStyle = "#9ca3af";
-		ctx.font = `${10 * scale}px 'Roboto', sans-serif`;
+		ctx.font = `${10 * scale}px ${posterFont}`;
 		ctx.fillText(
 			fitText(ctx, i18n(I18nKey.scanToRead), qrSize),
 			qrX + qrSize / 2,
