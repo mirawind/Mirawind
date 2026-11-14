@@ -46,10 +46,12 @@
   "src:content/projects/images/zenreply/reply-2.png": "30373d2b2e34393e42",
   "src:content/projects/images/zenreply/reply-1.png": "31363c2c2f34383d43",
   "src:content/projects/images/zenreply/cover.webp": "777c8273767d73787d",
-  "src:content/projects/images/vibeml-agent/cover.webp": "0f0e1b090912090c13",
-  "src:content/projects/images/vibeml-agent/cards.png": "110f220a0b140c0c18",
   "src:content/projects/images/dipecs/cover.webp": "edf2f5eff5f6f5f5f7",
   "src:content/projects/images/csgo-dog/cover.webp": "e1e4e5e1e4e5e4e7e9",
   "src:content/projects/images/bullet-ai/goals.webp": "90b1a8d8e2e0eff3f2",
-  "src:content/projects/images/bullet-ai/cover.webp": "f4f5f6f5f7f9fcfbfc"
+  "src:content/projects/images/bullet-ai/cover.webp": "f4f5f6f5f7f9fcfbfc",
+  "src:content/projects/images/vibeml-agent/landing-steps.webp": "0e1c1a0a10130e1c19",
+  "src:content/projects/images/vibeml-agent/landing-hero.webp": "2036320b1918112321",
+  "src:content/projects/images/vibeml-agent/dashboard-predict.webp": "1524200f1d1812211c",
+  "src:content/projects/images/vibeml-agent/dashboard-compile.webp": "17252112211c15342a"
 }
