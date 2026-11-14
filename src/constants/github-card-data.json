@@ -1,14 +1,62 @@
 {
+	"114august514/dipecs": {
+		"description": null,
+		"language": "Rust",
+		"avatarUrl": "https://avatars.githubusercontent.com/u/188748479?v=4",
+		"license": "Apache-2.0"
+	},
 	"50829/mirawind": {
 		"description": null,
 		"language": "Astro",
 		"avatarUrl": "https://avatars.githubusercontent.com/u/53815918?v=4",
 		"license": "MIT"
 	},
+	"mirawind/bullet-ai": {
+		"description": null,
+		"language": "TypeScript",
+		"avatarUrl": "https://avatars.githubusercontent.com/u/53815918?v=4",
+		"license": null
+	},
+	"mirawind/csgo-dog": {
+		"description": null,
+		"language": "TypeScript",
+		"avatarUrl": "https://avatars.githubusercontent.com/u/53815918?v=4",
+		"license": null
+	},
+	"mirawind/ft-shadow": {
+		"description": "Realtime shadow execution, multi-strategy research, and strategy evolution",
+		"language": "Python",
+		"avatarUrl": "https://avatars.githubusercontent.com/u/53815918?v=4",
+		"license": "GPL-3.0"
+	},
+	"mirawind/mirawind-library": {
+		"description": null,
+		"language": "TypeScript",
+		"avatarUrl": "https://avatars.githubusercontent.com/u/53815918?v=4",
+		"license": null
+	},
+	"mirawind/zen-reply": {
+		"description": null,
+		"language": "TypeScript",
+		"avatarUrl": "https://avatars.githubusercontent.com/u/53815918?v=4",
+		"license": null
+	},
+	"project-miry/miry-data-collector": {
+		"description": "Loss-explicit Binance USD-M market data collection and L2 reconstruction",
+		"language": "Python",
+		"avatarUrl": "https://avatars.githubusercontent.com/u/320477585?v=4",
+		"license": "GPL-3.0"
+	},
 	"spr-aachen/twilight": {
 		"description": "A CMS integrated static blog template | 支持后台管理的静态博客模板",
 		"language": "JavaScript",
 		"avatarUrl": "https://avatars.githubusercontent.com/u/51275522?v=4",
 		"license": "MIT"
+	},
+	"vibeml-team/easymodel": {
+		"description": "#小红书黑客松巅峰赛 #RedHackathon",
+		"language": "Python",
+		"avatarUrl": "https://avatars.githubusercontent.com/u/274274836?v=4",
+		"license": null
 	}
 }
