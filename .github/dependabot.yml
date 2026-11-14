@@ -20,6 +20,10 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
+      # 0.x 预发布包：minor 升级即破坏性变更（0.9 删除了 assertSafeSvgForDom 和 pkg/ wasm 路径，
+      # src/plugins/rehype-mermaid.mjs 会直接构建失败）。需手动迁移后再升级，与上游 Firefly 保持一致。
+      - dependency-name: "@mermanjs/web"
+        update-types: ["version-update:semver-minor"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
