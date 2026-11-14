@@ -1,11 +1,11 @@
 ---
-title: "ZenReply"
+title: ZenReply
 slug: zenreply
 published: 2026-03-04
 order: 30
-description: "桌面端 AI 沟通助手：选中文字、按下 Alt+Space，按沟通对象把草稿改写成得体的回复。"
-image: "./images/zenreply/cover.webp"
-status: "published"
+description: 桌面端 AI 沟通助手：选中文字、按下 Alt+Space，按沟通对象把草稿改写成得体的回复。
+image: ../images/zenreply/cover.webp
+status: published
 tags:
   - Tauri
   - React
@@ -13,12 +13,12 @@ tags:
   - TypeScript
   - LLM
 link:
-  - label: "GitHub"
-    icon: "fa7-brands:github"
-    value: "https://github.com/mirawind/zen-reply"
-  - label: "下载"
-    icon: "material-symbols:download"
-    value: "https://github.com/mirawind/zen-reply/releases/latest"
+  - label: GitHub
+    icon: fa7-brands:github
+    value: https://github.com/mirawind/zen-reply
+  - label: 下载
+    icon: material-symbols:download
+    value: https://github.com/mirawind/zen-reply/releases/latest
 ---
 
 ## 简介
@@ -27,11 +27,11 @@ link:
 
 ## 截图
 
-![回复模式：输入草稿，选择沟通对象](./images/zenreply/reply-1.png)
+![回复模式：输入草稿，选择沟通对象](../images/zenreply/reply-1.png)
 
-![回复模式：生成结果](./images/zenreply/reply-2.png)
+![回复模式：生成结果](../images/zenreply/reply-2.png)
 
-![英文翻译模式](./images/zenreply/translate2.png)
+![英文翻译模式](../images/zenreply/translate2.png)
 
 ## 亮点
 

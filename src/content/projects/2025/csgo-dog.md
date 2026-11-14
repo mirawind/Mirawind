@@ -3,7 +3,7 @@ title: "CSGO-Dog"
 slug: csgo-dog
 published: 2025-10-26
 description: "2025 年 10 月黑客松作品：CS2 饰品行情看板原型，带多平台价格走势和一个大模型建仓问答助手。"
-image: "./images/csgo-dog/cover.webp"
+image: "../images/csgo-dog/cover.webp"
 status: "archived"
 tags:
   - Next.js

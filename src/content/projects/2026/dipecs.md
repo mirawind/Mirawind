@@ -1,22 +1,22 @@
 ---
-title: "DiPECS"
+title: DiPECS
 slug: dipecs
 published: 2026-07-07
-description: "课程团队项目：Android 端侧 AIOS 原型，模型只负责提议，经过策略授权后才执行资源动作。"
-image: "./images/dipecs/cover.webp"
-status: "archived"
+description: 课程团队项目：Android 端侧 AIOS 原型，模型只负责提议，经过策略授权后才执行资源动作。
+image: ../images/dipecs/cover.webp
+status: archived
 tags:
   - 课程项目
   - Android
   - Rust
   - AIOS
 link:
-  - label: "GitHub"
-    icon: "fa7-brands:github"
-    value: "https://github.com/114August514/DiPECS"
-  - label: "文档"
-    icon: "material-symbols:menu-book"
-    value: "https://114august514.github.io/DiPECS/"
+  - label: GitHub
+    icon: fa7-brands:github
+    value: https://github.com/114August514/DiPECS
+  - label: 文档
+    icon: material-symbols:menu-book
+    value: https://114august514.github.io/DiPECS/
 ---
 
 ## 简介

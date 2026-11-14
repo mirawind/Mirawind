@@ -1,24 +1,22 @@
 ---
-title: "Bullet-AI"
+title: Bullet-AI
 slug: bullet-ai
 published: 2026-07-10
 order: 20
-description: "以 Today 为入口的个人生活工作区，记录生活、目标与习惯；离线可用，联网后与云端同步。"
-image: "./images/bullet-ai/cover.webp"
-status: "published"
+description: 以 Today 为入口的个人生活工作区，记录生活、目标与习惯；离线可用，联网后与云端同步。
+image: ../images/bullet-ai/cover.webp
+status: published
 tags:
   - Next.js
   - Supabase
   - IndexedDB
-  - TanStack Query
-  - Local-first
 link:
-  - label: "GitHub"
-    icon: "fa7-brands:github"
-    value: "https://github.com/mirawind/Bullet-AI"
-  - label: "在线体验"
-    icon: "material-symbols:open-in-new"
-    value: "https://bullet-ai.vercel.app/"
+  - label: GitHub
+    icon: fa7-brands:github
+    value: https://github.com/mirawind/Bullet-AI
+  - label: 在线体验
+    icon: material-symbols:open-in-new
+    value: https://bullet-ai.vercel.app/
 ---
 
 ## 简介
@@ -27,7 +25,7 @@ link:
 
 2025 年 8 月和 operator 一起起步；2026 年 6～7 月，我把数据层重构成 local-first 架构。
 
-![目标页：日历与当天日程、习惯打卡](./images/bullet-ai/goals.webp)
+![目标页：日历与当天日程、习惯打卡](../images/bullet-ai/goals.webp)
 
 （截图中的目标、习惯和感悟都是演示数据。）
 

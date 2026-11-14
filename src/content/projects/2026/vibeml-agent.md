@@ -1,29 +1,29 @@
 ---
-title: "VibeML Agent"
+title: VibeML Agent
 slug: vibeml-agent
 published: 2026-04-09
-description: "小红书黑客松团队作品：用自然语言描述需求，自动完成建模和训练，并交付可下载的模型。"
-image: "./images/vibeml-agent/cover.webp"
-status: "archived"
+description: 小红书黑客松团队作品：用自然语言描述需求，自动完成建模和训练，并交付可下载的模型。
+image: ../images/vibeml-agent/cover.webp
+status: archived
 tags:
   - 黑客松
   - AutoML
   - FastAPI
   - LLM
 link:
-  - label: "GitHub"
-    icon: "fa7-brands:github"
-    value: "https://github.com/VibeML-team/EasyModel"
-  - label: "Demo"
-    icon: "material-symbols:open-in-new"
-    value: "https://vibeml-agent.zeabur.app/"
+  - label: GitHub
+    icon: fa7-brands:github
+    value: https://github.com/VibeML-team/EasyModel
+  - label: Demo
+    icon: material-symbols:open-in-new
+    value: https://vibeml-agent.zeabur.app/
 ---
 
 ## 简介
 
 2026 年 4 月小红书黑客松（RedHackathon）的团队参赛作品。用户上传表格数据，再用自然语言写下目标，比如「预测用户是否会流失，宁可误报也别漏报」。系统把需求编译成结构化的建模目标，自动训练和调参，最后交付模型权重、预处理器和批量预测接口。
 
-![需求编译卡、数据与样本构造卡、训练方案卡](./images/vibeml-agent/cards.png)
+![需求编译卡、数据与样本构造卡、训练方案卡](../images/vibeml-agent/cards.png)
 
 ## 我的分工
 
