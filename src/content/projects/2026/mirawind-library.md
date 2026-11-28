@@ -4,7 +4,7 @@ slug: mirawind-library
 published: 2026-09-22
 order: 10
 description: "自托管的个人在线图书馆：把 MinerU 解析的电子书转换成结构化、可搜索的网页图书。"
-image: ""
+image: "../images/mirawind-library/library-shelf.webp"
 status: "developing"
 tags:
   - Astro
@@ -30,6 +30,16 @@ link:
 - 阅读器：提供目录、提纲、书内搜索和原文件下载；手机上目录收进抽屉。
 - 管理后台：按块编辑正文，修改元数据和封面，配置标题编号，永久删除图书。
 - 管理员登录：使用 Passkey，也可以用备用密码。
+
+## 界面截图
+
+![阅读器：左侧全书目录，右侧本页提纲，图片与正文一起排版](../images/mirawind-library/reader-csapp.webp)
+
+![书内搜索：输入关键词后列出命中的章节和上下文](../images/mirawind-library/reader-search.webp)
+
+![手机阅读：顶部工具栏，目录收进抽屉](../images/mirawind-library/reader-mobile.webp)
+
+![出版工作台：目录试排、正文预览和结构项编辑](../images/mirawind-library/manage-workbench.webp)
 
 ## 亮点
 

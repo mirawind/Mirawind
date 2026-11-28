@@ -14,9 +14,6 @@ link:
   - label: GitHub
     icon: fa7-brands:github
     value: https://github.com/VibeML-team/EasyModel
-  - label: Demo
-    icon: material-symbols:open-in-new
-    value: https://vibeml-agent.zeabur.app/
 ---
 
 ## 简介
@@ -30,7 +27,7 @@ link:
 - 对话式建模：在 Chat 页面上传数据（CSV、Excel、ZIP、7Z），用自然语言描述需求，得到为该场景定制的训练方案。
 - 数据获取：没有现成数据时，可以让 Agent 搜索公开数据集、生成合成数据，或者通过链接导入。
 - 需求编译：把一句话目标、必须保留的约束和不可接受的错误，编译成 ObjectiveSpec（任务类型、目标列、评估指标、验证策略、推荐模型）。
-- 自动训练：AutoML 使用 vast.ai 上的算力，利用 XGBoost、LightGBM、随机森林等机器学习模型或深度学习模型和超参数之间搜索，训练过程可以暂停、继续或停止。
+- 自动训练：AutoML 在 XGBoost、LightGBM、随机森林等机器学习模型和深度学习模型之间搜索模型与超参数，深度学习训练交给 Modal 的云端 GPU 执行；训练过程可以暂停、继续或停止。
 - 交付与预测：下载模型权重和预处理器；上传新数据批量预测，结果可以导出为 CSV / JSON。
 - 知识页面：提供模型百科和专题讲解，介绍 XGBoost、Transformer、贝叶斯优化等常见方法。
 
@@ -41,6 +38,8 @@ link:
 [在哔哩哔哩观看](https://www.bilibili.com/video/BV1n5DZBdEBk)
 
 ## 界面截图
+
+![Chat：上传数据并描述需求后，生成为该场景定制的训练方案](../images/vibeml-agent/chat-plan.webp)
 
 ![控制台：用一句话描述目标，编译成 ObjectiveSpec](../images/vibeml-agent/dashboard-compile.webp)
 
@@ -60,11 +59,11 @@ link:
 
 ## 技术栈
 
-Python · FastAPI · XGBoost / LightGBM / scikit-learn · OpenAI 兼容 LLM · Docker
+Python · FastAPI · XGBoost / LightGBM / scikit-learn · Modal（云端 GPU）· OpenAI 兼容 LLM · Docker
 
 ## 状态
 
-比赛结束后不再维护，在线 Demo 目前仍可访问。
+比赛结束后不再维护。
 
 ## 仓库
 
