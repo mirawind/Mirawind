@@ -115,19 +115,45 @@ a.card-github
     display: flex
     align-items: center
     justify-content: space-between
+    gap: 0.75rem
     margin-bottom: 0.5rem
     color: var(--tw-prose-headings)
     font-size: 1.25rem
     font-weight: 500
 
+    // 窄屏放不下时整段换行（owner / 换到下一行的 repo），而不是在仓库名内部断行；
+    // 仓库名单独一行仍放不下时用省略号截断
     .gc-titlebar-left
       display: flex
-      flex-flow: row nowrap
-      gap: 0.5rem
+      flex-flow: row wrap
+      align-items: center
+      column-gap: 0.5rem
+      row-gap: 0.125rem
+      min-width: 0
+
+    .gc-owner, .gc-divider
+      flex-shrink: 0
+      white-space: nowrap
 
     .gc-repo
+      min-width: 0
+      max-width: 100%
+      overflow: hidden
+      white-space: nowrap
+      text-overflow: ellipsis
       font-weight: bold
 
+    .github-logo
+      flex-shrink: 0
+
+  // 移动端根字号为 16px，标题略缩小，让常见长度的 owner / repo 仍能放在一行
+  @media (max-width: 767px)
+    padding: 1rem 1.25rem
+
+    .gc-titlebar
+      font-size: 1.125rem
+
+  .gc-titlebar
     .gc-owner
       font-weight: 300
       position: relative
